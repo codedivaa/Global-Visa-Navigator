@@ -6,6 +6,7 @@ import LandingPage from "@/pages/LandingPage";
 import AssessmentPage from "@/pages/AssessmentPage";
 import ResultsPage from "@/pages/ResultsPage";
 import AdvisorPage from "@/pages/AdvisorPage";
+import RoadmapsPage from "@/pages/RoadmapsPage";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/assessment" component={AssessmentPage} />
       <Route path="/results" component={ResultsPage} />
       <Route path="/advisor" component={AdvisorPage} />
+      <Route path="/roadmaps" component={RoadmapsPage} />
       <Route component={NotFound} />
     </Switch>
   );

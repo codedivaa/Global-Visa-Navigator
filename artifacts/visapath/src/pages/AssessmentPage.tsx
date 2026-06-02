@@ -17,7 +17,6 @@ type Answers = {
   travelHistory: string[];
 };
 
-// Defined OUTSIDE the component so React never treats it as a new type on re-render
 type OptionBtnProps = {
   label: string;
   value: string;
@@ -30,18 +29,16 @@ function OptionBtn({ label, isSelected, onSelect }: OptionBtnProps) {
     <button
       type="button"
       onClick={onSelect}
-      className={`w-full p-4 rounded-xl border transition-all flex items-center justify-between group text-left ${
-        isSelected
-          ? 'border-neon-pink bg-neon-pink/5'
-          : 'border-indigo-bloom/20 hover:border-indigo-bloom/50 hover:bg-white'
+      className={`option-btn w-full p-4 rounded-xl border-2 flex items-center justify-between text-left ${
+        isSelected ? 'selected' : 'border-indigo-bloom/20 hover:border-indigo-bloom/50 hover:bg-white/70'
       }`}
     >
-      <span className={`font-medium ${isSelected ? 'text-neon-pink' : 'text-text-main'}`}>
+      <span className={`font-medium ${isSelected ? 'text-neon-pink' : 'text-[#1a0f2e]'}`}>
         {label}
       </span>
       <div
-        className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${
-          isSelected ? 'border-neon-pink bg-neon-pink' : 'border-indigo-bloom/30'
+        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+          isSelected ? 'border-neon-pink bg-neon-pink scale-110' : 'border-indigo-bloom/30'
         }`}
       >
         {isSelected && <Icon icon="lucide:check" className="text-white text-xs" />}
@@ -61,18 +58,16 @@ function TravelBtn({ region, isSelected, onToggle }: TravelBtnProps) {
     <button
       type="button"
       onClick={onToggle}
-      className={`w-full p-4 rounded-xl border transition-all flex items-center justify-between group text-left ${
-        isSelected
-          ? 'border-neon-pink bg-neon-pink/5'
-          : 'border-indigo-bloom/20 hover:border-indigo-bloom/50 hover:bg-white'
+      className={`option-btn w-full p-4 rounded-xl border-2 flex items-center justify-between text-left ${
+        isSelected ? 'selected' : 'border-indigo-bloom/20 hover:border-indigo-bloom/50 hover:bg-white/70'
       }`}
     >
-      <span className={`font-medium ${isSelected ? 'text-neon-pink' : 'text-text-main'}`}>
+      <span className={`font-medium ${isSelected ? 'text-neon-pink' : 'text-[#1a0f2e]'}`}>
         {region}
       </span>
       <div
-        className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 ${
-          isSelected ? 'border-neon-pink bg-neon-pink' : 'border-indigo-bloom/30'
+        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+          isSelected ? 'border-neon-pink bg-neon-pink scale-110' : 'border-indigo-bloom/30'
         }`}
       >
         {isSelected && <Icon icon="lucide:check" className="text-white text-xs" />}
@@ -145,7 +140,7 @@ export default function AssessmentPage() {
       <NavBar activeItem="assessment" />
 
       <main className="relative z-10 flex-1 flex flex-col items-center pt-40 px-6 pb-20">
-        {/* Progress indicator */}
+        {/* Progress */}
         <div className="w-full max-w-3xl flex flex-col items-center mb-12">
           <div className="flex items-center gap-6 mb-4">
             <div className="relative w-16 h-16 flex items-center justify-center">
@@ -177,15 +172,16 @@ export default function AssessmentPage() {
           </div>
         </div>
 
-        {/* Step content */}
+        {/* Step cards */}
         <div className="w-full max-w-2xl glass-card p-10 relative overflow-hidden" ref={containerRef}>
+
           {currentStep === 1 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="space-y-2">
                 <h1 className="text-4xl font-space font-bold">What is your nationality?</h1>
                 <p className="text-[#4b3b6b] text-lg">Your country of citizenship defines your core visa eligibility rules.</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
                   { label: '🇮🇳 India', value: 'India' },
                   { label: '🇨🇳 China', value: 'China' },
@@ -194,13 +190,9 @@ export default function AssessmentPage() {
                   { label: '🇲🇽 Mexico', value: 'Mexico' },
                   { label: '🌐 Other', value: 'Other' },
                 ].map(opt => (
-                  <OptionBtn
-                    key={opt.value}
-                    label={opt.label}
-                    value={opt.value}
+                  <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.nationality === opt.value}
-                    onSelect={() => setField('nationality', opt.value)}
-                  />
+                    onSelect={() => setField('nationality', opt.value)} />
                 ))}
               </div>
             </div>
@@ -212,7 +204,7 @@ export default function AssessmentPage() {
                 <h1 className="text-4xl font-space font-bold">Where do you live currently?</h1>
                 <p className="text-[#4b3b6b] text-lg">Current residency affects processing centers and wait times.</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
                   { label: '🇺🇸 United States', value: 'USA' },
                   { label: '🇬🇧 United Kingdom', value: 'UK' },
@@ -221,13 +213,9 @@ export default function AssessmentPage() {
                   { label: '🇦🇺 Australia', value: 'Australia' },
                   { label: '🌐 Other', value: 'Other' },
                 ].map(opt => (
-                  <OptionBtn
-                    key={opt.value}
-                    label={opt.label}
-                    value={opt.value}
+                  <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.currentCountry === opt.value}
-                    onSelect={() => setField('currentCountry', opt.value)}
-                  />
+                    onSelect={() => setField('currentCountry', opt.value)} />
                 ))}
               </div>
             </div>
@@ -239,7 +227,7 @@ export default function AssessmentPage() {
                 <h1 className="text-4xl font-space font-bold">What is your target destination?</h1>
                 <p className="text-[#4b3b6b] text-lg">Where are you looking to immigrate to?</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
                   { label: '🇨🇦 Canada', value: 'Canada' },
                   { label: '🇩🇪 Germany', value: 'Germany' },
@@ -248,13 +236,9 @@ export default function AssessmentPage() {
                   { label: '🇦🇺 Australia', value: 'Australia' },
                   { label: '🇯🇵 Japan', value: 'Japan' },
                 ].map(opt => (
-                  <OptionBtn
-                    key={opt.value}
-                    label={opt.label}
-                    value={opt.value}
+                  <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.targetCountry === opt.value}
-                    onSelect={() => setField('targetCountry', opt.value)}
-                  />
+                    onSelect={() => setField('targetCountry', opt.value)} />
                 ))}
               </div>
             </div>
@@ -273,13 +257,9 @@ export default function AssessmentPage() {
                   { label: "Master's Degree", value: "Master's" },
                   { label: 'Doctorate / PhD', value: 'PhD' },
                 ].map(opt => (
-                  <OptionBtn
-                    key={opt.value}
-                    label={opt.label}
-                    value={opt.value}
+                  <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.degree === opt.value}
-                    onSelect={() => setField('degree', opt.value)}
-                  />
+                    onSelect={() => setField('degree', opt.value)} />
                 ))}
               </div>
             </div>
@@ -297,8 +277,7 @@ export default function AssessmentPage() {
                   <span className="text-sm font-mono text-indigo-bloom/60 uppercase mb-2">Years</span>
                 </div>
                 <input
-                  type="range"
-                  min="0" max="20"
+                  type="range" min="0" max="20"
                   value={answers.workExperience}
                   onChange={e => setAnswers(prev => ({ ...prev, workExperience: parseInt(e.target.value) }))}
                   className="w-full accent-neon-pink"
@@ -320,13 +299,9 @@ export default function AssessmentPage() {
                   { label: 'Advanced (C1-C2)', value: 'Advanced' },
                   { label: 'Native / Fluent', value: 'Native/Fluent' },
                 ].map(opt => (
-                  <OptionBtn
-                    key={opt.value}
-                    label={opt.label}
-                    value={opt.value}
+                  <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.englishScore === opt.value}
-                    onSelect={() => setField('englishScore', opt.value)}
-                  />
+                    onSelect={() => setField('englishScore', opt.value)} />
                 ))}
               </div>
             </div>
@@ -344,13 +319,9 @@ export default function AssessmentPage() {
                   { label: 'Yes, remote', value: 'Yes - Remote' },
                   { label: 'No job offer yet', value: 'No' },
                 ].map(opt => (
-                  <OptionBtn
-                    key={opt.value}
-                    label={opt.label}
-                    value={opt.value}
+                  <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.jobOffer === opt.value}
-                    onSelect={() => setField('jobOffer', opt.value)}
-                  />
+                    onSelect={() => setField('jobOffer', opt.value)} />
                 ))}
               </div>
             </div>
@@ -360,28 +331,25 @@ export default function AssessmentPage() {
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="space-y-2">
                 <h1 className="text-4xl font-space font-bold">Travel History</h1>
-                <p className="text-[#4b3b6b] text-lg">Select regions you have visited in the last 10 years.</p>
+                <p className="text-[#4b3b6b] text-lg">Select all regions you have visited in the last 10 years.</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {['North America', 'Europe', 'Asia-Pacific', 'Middle East', 'Others'].map(region => (
-                  <TravelBtn
-                    key={region}
-                    region={region}
+                  <TravelBtn key={region} region={region}
                     isSelected={answers.travelHistory.includes(region)}
-                    onToggle={() => toggleTravel(region)}
-                  />
+                    onToggle={() => toggleTravel(region)} />
                 ))}
               </div>
             </div>
           )}
         </div>
 
-        {/* Navigation buttons */}
+        {/* Navigation */}
         <div className="w-full max-w-2xl mt-12 flex justify-between items-center">
           <button
             type="button"
             onClick={handlePrev}
-            className={`px-8 py-3 rounded-full border border-indigo-bloom/20 text-indigo-bloom hover:bg-indigo-bloom/5 transition-all ${
+            className={`px-8 py-3 rounded-full border border-indigo-bloom/20 text-indigo-bloom hover:bg-indigo-bloom/5 active:scale-[0.96] active:bg-indigo-bloom/10 transition-all ${
               currentStep === 1 ? 'opacity-0 pointer-events-none' : ''
             }`}
           >
@@ -391,7 +359,7 @@ export default function AssessmentPage() {
             type="button"
             onClick={handleNext}
             data-testid="button-next-step"
-            className="px-10 py-4 rounded-full bg-neon-pink text-white font-bold hover:scale-105 transition-all"
+            className="px-10 py-4 rounded-full bg-neon-pink text-white font-bold hover:bg-pink-600 active:scale-[0.96] active:bg-pink-700 transition-all shadow-md hover:shadow-lg"
           >
             {currentStep === totalSteps ? 'View Results' : 'Next Step'}
           </button>

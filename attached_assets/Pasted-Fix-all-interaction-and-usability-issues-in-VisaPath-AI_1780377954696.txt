@@ -1,0 +1,171 @@
+Fix all interaction and usability issues in VisaPath AI.
+
+IMPORTANT:
+Do not redesign the UI.
+Do not change colors.
+Do not modify layout.
+Do not remove animations.
+
+Only fix functionality and user feedback.
+
+ISSUES TO FIX:
+
+1. Assessment selections are not clearly clickable.
+
+Example:
+
+* Nationality selection
+* Country selection
+* Education selection
+* English score selection
+* Job offer selection
+
+Requirements:
+
+* Every option must be clickable.
+* Clicking an option must immediately show a selected state.
+* Add visual feedback:
+
+  * Slight darkening
+  * Border highlight
+  * Checkmark
+  * Scale animation
+
+When selected:
+
+* Border becomes stronger
+* Card darkens slightly
+* Selection remains visible until changed
+
+---
+
+2. Add proper toggle/selected behavior.
+
+Currently users cannot tell whether a choice has been selected.
+
+Requirements:
+
+* Only one option selected where applicable.
+* Previous option deselects automatically.
+* Selected state remains visible.
+
+---
+
+3. Pricing section is not working.
+
+Requirements:
+
+Replace placeholder pricing behavior.
+
+Add:
+
+Estimated Immigration Cost
+
+Show estimated breakdown based on selected visa:
+
+* Visa Fee
+* Language Test
+* Credential Evaluation
+* Medical Exam
+* Travel Costs
+
+Display total estimated cost.
+
+Use realistic example values.
+
+---
+
+4. Roadmaps button does not work.
+
+Requirements:
+
+Create a Roadmaps page.
+
+Display:
+
+* Recommended Visa
+* Timeline
+* Required Documents
+* Key Milestones
+* Next Steps
+
+Connect navigation properly.
+
+---
+
+5. Features button does not work.
+
+Requirements:
+
+Scroll to Features section on landing page.
+
+Smooth scrolling.
+
+---
+
+6. Pricing button does not work.
+
+Requirements:
+
+Scroll to Pricing section.
+
+Smooth scrolling.
+
+---
+
+7. Sign In button does not work.
+
+Requirements:
+
+Either:
+
+* Create a placeholder Sign In page
+
+OR
+
+* Temporarily hide Sign In button
+
+Do not leave broken links.
+
+---
+
+8. Remove Watch Demo button completely.
+
+Replace with:
+
+See How It Works
+
+This should scroll to Features section.
+
+---
+
+9. Improve button feedback globally.
+
+Every button should have:
+
+* Hover state
+* Pressed state
+* Selected state
+* Active state
+
+When pressed:
+
+* Slight darkening
+* Slight scale down
+* Smooth transition
+
+Users should always know their click was registered.
+
+---
+
+10. Test entire user journey.
+
+Landing Page
+→ Assessment
+→ Results
+→ Roadmaps
+→ AI Advisor
+
+Ensure no dead buttons and no broken links.
+
+The application should feel fully interactive and production-ready.

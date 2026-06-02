@@ -266,6 +266,32 @@
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 0 30px -5px rgba(6, 182, 212, 0.6);
 }
+.light-beam-btn:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: none;
+}
+
+/* Global interactive button feedback */
+button:not([disabled]),
+a[href]:not([disabled]) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Assessment option buttons — clear selected + press states */
+.option-btn {
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+.option-btn:active {
+  transform: scale(0.97);
+}
+.option-btn.selected {
+  border-color: #f42272;
+  background-color: rgba(244, 34, 114, 0.06);
+  box-shadow: 0 0 0 2px rgba(244, 34, 114, 0.15);
+}
+.option-btn.selected:active {
+  transform: scale(0.98);
+}
 
 @layer base {
   * { @apply border-border; }

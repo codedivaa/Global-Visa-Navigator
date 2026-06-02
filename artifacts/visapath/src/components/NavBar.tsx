@@ -12,7 +12,6 @@ export default function NavBar({ activeItem = null }: NavBarProps) {
   const scrollToSection = (id: string) => {
     if (location !== '/') {
       navigate('/');
-      // Give wouter time to render the landing page before scrolling
       setTimeout(() => {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
       }, 120);
@@ -22,10 +21,10 @@ export default function NavBar({ activeItem = null }: NavBarProps) {
   };
 
   const navLinkClass = (item: string) =>
-    `nav-item px-4 py-2 text-sm font-medium transition-all cursor-pointer select-none ${
+    `nav-item px-4 py-2 text-sm font-medium transition-all cursor-pointer select-none rounded-full active:scale-[0.95] ${
       activeItem === item
-        ? 'text-indigo-bloom bg-indigo-bloom/5 rounded-full'
-        : 'text-indigo-950/70 hover:text-indigo-bloom'
+        ? 'text-indigo-bloom bg-indigo-bloom/5'
+        : 'text-indigo-950/70 hover:text-indigo-bloom hover:bg-indigo-bloom/5'
     }`;
 
   return (
@@ -37,25 +36,19 @@ export default function NavBar({ activeItem = null }: NavBarProps) {
         </Link>
 
         <div className="flex items-center gap-1 z-10">
-          <button
-            onClick={() => scrollToSection('features')}
-            className={navLinkClass('features')}
-          >
+          <button onClick={() => scrollToSection('features')} className={navLinkClass('features')}>
             Features
           </button>
           <Link href="/assessment" className={navLinkClass('assessment')}>
             Assessment
           </Link>
-          <Link href="/results" className={navLinkClass('roadmaps')}>
+          <Link href="/roadmaps" className={navLinkClass('roadmaps')}>
             Roadmaps
           </Link>
           <Link href="/advisor" className={navLinkClass('advisor')}>
             AI Advisor
           </Link>
-          <button
-            onClick={() => scrollToSection('pricing')}
-            className={navLinkClass('pricing')}
-          >
+          <button onClick={() => scrollToSection('pricing')} className={navLinkClass('pricing')}>
             Pricing
           </button>
         </div>
@@ -67,7 +60,7 @@ export default function NavBar({ activeItem = null }: NavBarProps) {
           </span>
           <Link
             href="/assessment"
-            className="text-xs font-mono tracking-widest uppercase opacity-80 hover:opacity-100 transition-opacity"
+            className="text-xs font-mono tracking-widest uppercase opacity-80 hover:opacity-100 hover:text-neon-pink active:scale-95 transition-all"
           >
             Sign In
           </Link>
