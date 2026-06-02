@@ -21,7 +21,7 @@ function timeAgo(iso: string): string {
 }
 
 export default function HistoryPage() {
-  const { user, signInWithGoogle } = useAuth();
+  const { user } = useAuth();
   const [, navigate] = useLocation();
   const [rows, setRows] = useState<AssessmentRow[]>([]);
   const [loading, setLoading] = useState(false);
@@ -65,15 +65,8 @@ export default function HistoryPage() {
             <Icon icon="lucide:lock" className="text-5xl text-indigo-bloom/40" />
             <h2 className="font-space text-2xl font-bold">Sign In to View History</h2>
             <p className="text-indigo-950/60">
-              Your assessment history is saved to your account. Sign in with Google to access it.
+              Your assessment history is saved to your account. Use the <strong>Sign in</strong> button in the nav bar to get a magic link sent to your email.
             </p>
-            <button
-              onClick={signInWithGoogle}
-              className="light-beam-btn px-8 py-4 font-semibold flex items-center gap-2"
-            >
-              <Icon icon="flat-color-icons:google" className="text-lg" />
-              Sign in with Google
-            </button>
           </div>
         ) : loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">

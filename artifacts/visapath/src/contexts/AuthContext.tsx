@@ -7,14 +7,14 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 type AuthCtx = {
   user: User | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthCtx>({
   user: null,
   loading: false,
-  signInWithGoogle: async () => {},
+  signInWithEmail: async () => ({ error: null }),
   signOut: async () => {},
 });
 
@@ -37,12 +37,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
-    if (!supabase) return;
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + BASE },
+  const signInWithEmail = async (email: string): Promise<{ error: string | null }> => {
+    if (!supabase) return { error: 'Supabase not configured' };
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin + BASE },
     });
+    if (error) return { error: error.message };
+    return { error: null };
   };
 
   const signOut = async () => {
@@ -52,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithEmail, signOut }}>
       {children}
     </AuthContext.Provider>
   );
