@@ -223,7 +223,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="mt-20 border-y border-indigo-bloom/10 bg-white/20 py-20 relative overflow-hidden backdrop-blur-sm">
+        <section id="features" className="mt-20 border-y border-indigo-bloom/10 bg-white/20 py-20 relative overflow-hidden backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-6 mb-12 flex justify-between items-end">
             <div>
               <h2 className="text-3xl font-space font-bold mb-2">Explore Top Pathways</h2>
@@ -267,7 +267,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="relative z-50 w-full px-12 py-10 flex flex-col md:flex-row justify-between items-center gap-10 border-t border-white/10 bg-[#080a0f] mt-auto">
+      <footer id="pricing" className="relative z-50 w-full px-12 py-10 flex flex-col md:flex-row justify-between items-center gap-10 border-t border-white/10 bg-[#080a0f] mt-auto">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
