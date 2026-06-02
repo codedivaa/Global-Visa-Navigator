@@ -1,15 +1,21 @@
 export default function AnimatedBackground() {
   return (
     <>
+      {/* Original blob layer */}
       <div className="gooey-wrapper">
         <div className="gradients-container">
           <div className="blob b1"></div>
           <div className="blob b2"></div>
           <div className="blob b3"></div>
           <div className="blob b4"></div>
+          {/* Emerald / cyan accent glows */}
+          <div className="blob b-emerald"></div>
+          <div className="blob b-cyan"></div>
           <div className="interactive-blob" />
         </div>
       </div>
+
+      {/* Original route-map SVG layer */}
       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
         <svg viewBox="0 0 1000 500" className="w-full h-full text-indigo-bloom/10">
           <path d="M150,150 Q250,100 350,150" fill="none" stroke="url(#grad1)" strokeWidth="1.5" className="map-path opacity-40" />
@@ -26,6 +32,23 @@ export default function AnimatedBackground() {
           <circle cx="700" cy="100" r="3" fill="#6366F1" className="animate-pulse" />
           <circle cx="850" cy="250" r="3" fill="#8B5CF6" className="animate-pulse" />
         </svg>
+      </div>
+
+      {/* Glass leaf shapes */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="glass-leaf leaf-1" />
+        <div className="glass-leaf leaf-2" />
+        <div className="glass-leaf leaf-3" />
+        <div className="glass-leaf leaf-4" />
+        <div className="glass-leaf leaf-5" />
+        <div className="glass-leaf leaf-6" />
+      </div>
+
+      {/* Floating particles */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {Array.from({ length: 18 }).map((_, i) => (
+          <div key={i} className={`particle particle-${(i % 6) + 1}`} style={{ left: `${(i * 5.7 + 3) % 100}%` }} />
+        ))}
       </div>
     </>
   );

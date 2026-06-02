@@ -211,6 +211,131 @@
 .b2 { background: radial-gradient(circle, #f42272 0, transparent 70%); animation: moveB2 8s ease-in-out infinite; }
 .b3 { background: radial-gradient(circle, #601b9d 0, transparent 70%); animation: moveB3 14s ease-in-out infinite; }
 .b4 { background: radial-gradient(circle, #f291d4 0, transparent 70%); animation: moveB4 12s ease-in-out infinite; }
+/* Emerald + cyan accent glows — low opacity, slow drift */
+.b-emerald {
+  background: radial-gradient(circle, #10b981 0, transparent 70%);
+  animation: moveB1 22s ease-in-out infinite reverse;
+  opacity: 0.13;
+  width: 40%; height: 40%;
+  top: 60%; left: 70%;
+}
+.b-cyan {
+  background: radial-gradient(circle, #06b6d4 0, transparent 70%);
+  animation: moveB3 26s ease-in-out infinite;
+  opacity: 0.10;
+  width: 35%; height: 35%;
+  top: 20%; left: 5%;
+}
+
+/* Glass leaf keyframes */
+@keyframes leafFloat1 {
+  0%, 100% { transform: translateY(0px) translateX(0px) rotate(-18deg); }
+  33%       { transform: translateY(-28px) translateX(10px) rotate(-10deg); }
+  66%       { transform: translateY(-14px) translateX(-8px) rotate(-24deg); }
+}
+@keyframes leafFloat2 {
+  0%, 100% { transform: translateY(0px) translateX(0px) rotate(30deg); }
+  40%       { transform: translateY(-22px) translateX(-12px) rotate(22deg); }
+  70%       { transform: translateY(-10px) translateX(8px) rotate(38deg); }
+}
+@keyframes leafFloat3 {
+  0%, 100% { transform: translateY(0px) rotate(55deg); }
+  50%       { transform: translateY(-32px) rotate(46deg); }
+}
+@keyframes leafFloat4 {
+  0%, 100% { transform: translateY(0px) translateX(0px) rotate(-40deg); }
+  45%       { transform: translateY(-18px) translateX(14px) rotate(-30deg); }
+}
+@keyframes leafFloat5 {
+  0%, 100% { transform: translateY(0px) rotate(70deg); }
+  55%       { transform: translateY(-24px) translateX(-6px) rotate(60deg); }
+}
+@keyframes leafFloat6 {
+  0%, 100% { transform: translateY(0px) translateX(0px) rotate(-60deg); }
+  60%       { transform: translateY(-20px) translateX(10px) rotate(-50deg); }
+}
+
+/* Particle keyframes */
+@keyframes particleRise {
+  0%   { transform: translateY(0) scale(1); opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 0.6; }
+  100% { transform: translateY(-120vh) scale(0.4); opacity: 0; }
+}
+
+/* Glass leaf base */
+.glass-leaf {
+  position: absolute;
+  border-radius: 0% 60% 0% 60%;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+.leaf-1 {
+  width: 80px; height: 120px;
+  top: 15%; left: 8%;
+  background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(6,182,212,0.05) 100%);
+  border: 1px solid rgba(16,185,129,0.12);
+  animation: leafFloat1 18s ease-in-out infinite;
+  box-shadow: inset 0 0 20px rgba(16,185,129,0.04), 0 4px 16px rgba(16,185,129,0.06);
+}
+.leaf-2 {
+  width: 55px; height: 85px;
+  top: 55%; left: 3%;
+  background: linear-gradient(135deg, rgba(6,182,212,0.07) 0%, rgba(96,27,157,0.05) 100%);
+  border: 1px solid rgba(6,182,212,0.10);
+  animation: leafFloat2 24s ease-in-out infinite;
+  animation-delay: -6s;
+  box-shadow: inset 0 0 14px rgba(6,182,212,0.04);
+}
+.leaf-3 {
+  width: 100px; height: 150px;
+  top: 10%; right: 6%;
+  background: linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(203,203,246,0.07) 100%);
+  border: 1px solid rgba(16,185,129,0.10);
+  animation: leafFloat3 20s ease-in-out infinite;
+  animation-delay: -3s;
+  box-shadow: inset 0 0 24px rgba(16,185,129,0.03);
+}
+.leaf-4 {
+  width: 65px; height: 95px;
+  top: 70%; right: 8%;
+  background: linear-gradient(135deg, rgba(6,182,212,0.06) 0%, rgba(16,185,129,0.06) 100%);
+  border: 1px solid rgba(6,182,212,0.08);
+  animation: leafFloat4 28s ease-in-out infinite;
+  animation-delay: -10s;
+}
+.leaf-5 {
+  width: 44px; height: 66px;
+  top: 40%; left: 90%;
+  background: linear-gradient(135deg, rgba(16,185,129,0.07) 0%, rgba(244,34,114,0.04) 100%);
+  border: 1px solid rgba(16,185,129,0.09);
+  animation: leafFloat5 22s ease-in-out infinite;
+  animation-delay: -14s;
+}
+.leaf-6 {
+  width: 70px; height: 105px;
+  top: 78%; left: 55%;
+  background: linear-gradient(135deg, rgba(6,182,212,0.05) 0%, rgba(96,27,157,0.04) 100%);
+  border: 1px solid rgba(6,182,212,0.08);
+  animation: leafFloat6 30s ease-in-out infinite;
+  animation-delay: -8s;
+}
+
+/* Floating particles */
+.particle {
+  position: absolute;
+  bottom: -10px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.particle-1 { width: 3px; height: 3px; background: rgba(16,185,129,0.35); animation: particleRise 14s ease-in infinite; animation-delay: 0s; }
+.particle-2 { width: 2px; height: 2px; background: rgba(6,182,212,0.30); animation: particleRise 18s ease-in infinite; animation-delay: -3s; }
+.particle-3 { width: 4px; height: 4px; background: rgba(16,185,129,0.20); animation: particleRise 22s ease-in infinite; animation-delay: -7s; }
+.particle-4 { width: 2px; height: 2px; background: rgba(203,203,246,0.40); animation: particleRise 16s ease-in infinite; animation-delay: -11s; }
+.particle-5 { width: 3px; height: 3px; background: rgba(6,182,212,0.25); animation: particleRise 20s ease-in infinite; animation-delay: -5s; }
+.particle-6 { width: 2px; height: 2px; background: rgba(16,185,129,0.28); animation: particleRise 25s ease-in infinite; animation-delay: -9s; }
 
 .map-path { stroke-dasharray: 10; animation: flow 20s linear infinite; }
 
