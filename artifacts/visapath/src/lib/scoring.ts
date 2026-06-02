@@ -73,34 +73,71 @@ export function calculateScores(assessment: Assessment): ScoringResult {
     const improvements: string[] = [];
 
     const deg = degreeScore(a.degree);
-    score += deg;
-    if (deg >= 20) strengths.push('Strong educational background');
-    else if (deg < 10) { weaknesses.push('Higher degree may improve eligibility'); improvements.push('Consider pursuing a Masters degree'); }
-
     const exp = expScore(a.workExperience ?? 0);
-    score += exp;
-    if (exp >= 20) strengths.push('Extensive work experience');
-    else if (exp < 10) { weaknesses.push('Limited work experience'); improvements.push('Gain at least 3 years of relevant work experience'); }
-
     const eng = calcEnglishScore(a.englishScore);
-    score += eng;
-    if (eng >= 17) strengths.push('Excellent English proficiency');
-    else if (eng < 12) { weaknesses.push('English proficiency needs improvement'); improvements.push('Achieve IELTS 7.0+ or equivalent'); }
-
     const age = ageScore(a.age ?? 28);
-    score += age;
-    if (age >= 15) strengths.push('Optimal age range for immigration programs');
 
-    if (a.jobOffer === 'Yes - In Target Country') {
-      score += 15;
-      strengths.push('Strong job offer in target country');
-    } else if (a.jobOffer === 'Yes - Remote') {
-      score += 8;
-      strengths.push('Remote job offer strengthens application');
-    } else {
-      improvements.push('Securing a job offer in ' + visa.country + ' would significantly boost eligibility');
+    const isCanada = visa.id === 'canada-ee';
+    const isGermany = visa.id === 'germany-oc';
+    const isH1B = visa.id === 'h1b';
+
+    // --- Education ---
+    // Germany strongly favors recognized degrees
+    const degWeight = isGermany ? 1.6 : 1.0;
+    score += Math.round(deg * degWeight);
+    if (deg >= 20) strengths.push('Strong educational background');
+    else if (deg < 10) {
+      weaknesses.push('Higher degree may improve eligibility');
+      improvements.push('Consider pursuing a Masters degree');
     }
 
+    // --- Work Experience ---
+    // Germany strongly favors experience
+    const expWeight = isGermany ? 1.6 : 1.0;
+    score += Math.round(exp * expWeight);
+    if (exp >= 20) strengths.push('Extensive work experience');
+    else if (exp < 10) {
+      weaknesses.push('Limited work experience');
+      improvements.push('Gain at least 3 years of relevant work experience');
+    }
+
+    // --- English Proficiency ---
+    // Canada (Express Entry) strongly favors English
+    const engWeight = isCanada ? 1.7 : 1.0;
+    score += Math.round(eng * engWeight);
+    if (eng >= 17) strengths.push('Excellent English proficiency');
+    else if (eng < 12) {
+      weaknesses.push('English proficiency needs improvement');
+      improvements.push('Achieve IELTS 7.0+ or equivalent');
+    }
+
+    // --- Age ---
+    // Canada Express Entry strongly favors optimal age range
+    const ageWeight = isCanada ? 1.5 : 1.0;
+    score += Math.round(age * ageWeight);
+    if (age >= 15) strengths.push('Optimal age range for immigration programs');
+
+    // --- Job Offer ---
+    // H-1B strongly requires a job offer; no offer = near-zero score for H-1B
+    if (a.jobOffer === 'Yes - In Target Country') {
+      const jobPoints = isH1B ? 30 : 15;
+      score += jobPoints;
+      strengths.push('Strong job offer in target country');
+    } else if (a.jobOffer === 'Yes - Remote') {
+      const jobPoints = isH1B ? 10 : 8;
+      score += jobPoints;
+      strengths.push('Remote job offer strengthens application');
+    } else {
+      if (isH1B) {
+        score -= 20; // H-1B is employer-sponsored; no offer is a major blocker
+        weaknesses.push('H-1B requires a US employer sponsor — no job offer is a critical gap');
+        improvements.push('Secure a US employer willing to sponsor your H-1B');
+      } else {
+        improvements.push('Securing a job offer in ' + visa.country + ' would significantly boost eligibility');
+      }
+    }
+
+    // --- Target Country Alignment ---
     const targetLower = (a.targetCountry ?? '').toLowerCase();
     if (visa.country === 'Canada' && targetLower.includes('canada')) score += 10;
     else if (visa.country === 'USA' && (targetLower.includes('usa') || targetLower.includes('united states'))) score += 10;
@@ -109,9 +146,13 @@ export function calculateScores(assessment: Assessment): ScoringResult {
     else if (visa.country === 'Australia' && targetLower.includes('australia')) score += 10;
     else score += 2;
 
-    if ((a.travelHistory ?? []).length >= 3) { score += 5; strengths.push('Strong international travel history'); }
+    // --- Travel History ---
+    if ((a.travelHistory ?? []).length >= 3) {
+      score += 5;
+      strengths.push('Strong international travel history');
+    }
 
-    score = Math.min(100, Math.round(score));
+    score = Math.max(0, Math.min(100, Math.round(score)));
 
     return {
       visa,
