@@ -1,0 +1,238 @@
+IMPORTANT: READ CAREFULLY.
+
+I am providing 3 existing HTML prototype files.
+
+These files are the source of truth.
+
+DO NOT redesign anything.
+DO NOT change colors.
+DO NOT change layouts.
+DO NOT simplify animations.
+DO NOT replace components.
+DO NOT remove any sections.
+
+Your job is to convert the existing HTML prototypes into a production-ready Next.js 14 application.
+
+==================================================
+FILES PROVIDED
+==============
+
+1. Landing Page
+2. Assessment Questionnaire
+3. AI Advisor
+
+Use these files exactly as they are.
+
+Preserve:
+
+* Styling
+* Typography
+* Colors
+* Animations
+* Layouts
+* Glassmorphism
+* Hero section
+* Navigation
+* Dashboard cards
+* Assessment flow
+* Advisor UI
+
+==================================================
+TECH STACK
+==========
+
+Use:
+
+* Next.js 14
+* TypeScript
+* Tailwind CSS
+* App Router
+
+==================================================
+PROJECT STRUCTURE
+=================
+
+Create:
+
+app/
+page.tsx
+
+app/assessment/
+page.tsx
+
+app/results/
+page.tsx
+
+app/advisor/
+page.tsx
+
+components/
+lib/
+data/
+types/
+
+==================================================
+ASSESSMENT LOGIC
+================
+
+Implement local state only.
+
+No backend.
+
+No database.
+
+No Supabase.
+
+No authentication.
+
+No API calls.
+
+Store assessment answers in localStorage.
+
+Fields:
+
+* nationality
+* currentCountry
+* targetCountry
+* age
+* degree
+* workExperience
+* englishScore
+* jobOffer
+* travelHistory
+
+==================================================
+VISA DATABASE
+=============
+
+Create local JSON/TypeScript data.
+
+Include:
+
+* H1B
+* O1A
+* EB2 NIW
+* Canada Express Entry
+* Germany Opportunity Card
+* UK Skilled Worker
+* Australia Skilled Migration
+
+==================================================
+SCORING ENGINE
+==============
+
+Create:
+
+lib/scoring.ts
+
+Calculate score from:
+
+Age
+Degree
+Experience
+English Score
+Job Offer
+Country Match
+
+Return:
+
+{
+score,
+category,
+strengths,
+weaknesses,
+explanation,
+improvements
+}
+
+Score range:
+
+0-100
+
+Categories:
+
+90-100 = Excellent Match
+
+75-89 = Strong Match
+
+60-74 = Moderate Match
+
+Below 60 = Weak Match
+
+==================================================
+RESULTS PAGE
+============
+
+Create a new Results page.
+
+Use the same visual design language as the provided prototypes.
+
+Display:
+
+* Top Visa Matches
+* Score
+* Match Category
+* Processing Time
+* Estimated Cost
+* Strengths
+* Weaknesses
+* Improvement Suggestions
+
+==================================================
+AI ADVISOR
+==========
+
+Do NOT connect OpenAI.
+
+Do NOT connect Gemini.
+
+Generate mock responses from:
+
+* User profile
+* Visa recommendation data
+
+Use the existing AI Advisor UI.
+
+==================================================
+CRITICAL REQUIREMENTS
+=====================
+
+1. Preserve existing design exactly.
+
+2. Do not replace custom animations.
+
+3. Do not remove GSAP effects.
+
+4. Do not replace glassmorphism styling.
+
+5. Do not change color palette.
+
+6. Do not add authentication.
+
+7. Do not add databases.
+
+8. Do not add Supabase.
+
+9. Do not add FastAPI.
+
+10. Do not create unnecessary complexity.
+
+==================================================
+FINAL GOAL
+==========
+
+Produce a fully working Next.js application where:
+
+Landing Page
+→ Assessment
+→ Results
+→ AI Advisor
+
+works end-to-end using local data only.
+
+The application must run immediately with:
+
+npm install
+npm run dev
+
+without additional setup.

@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VisaPath AI — Global Immigration Navigator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'neon-pink': '#f42272',
+            'indigo-bloom': '#601b9d',
+            'pink-carnation': '#f291d4',
+            'periwinkle': '#cbcbf6',
+            'muted-teal': '#98b295'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --color-bg: #f8f6ff;
+      --color-surface: #ffffff;
+      --color-card: rgba(255, 255, 255, 0.6);
+      --color-cyan: #f42272;
+      --color-indigo: #601b9d;
+      --color-purple: #8B5CF6;
+      --color-magenta: #EC4899;
+      --color-neon: #f42272;
+      --color-periwinkle: #cbcbf6;
+      --color-pink-carnation: #f291d4;
+      --color-text-main: #1a0f2e;
+      --color-text-soft: #4b3b6b;
+      --glass-border: 1px solid rgba(96, 27, 157, 0.15);
+    }
+
+    body {
+      background-color: var(--color-bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--color-text-main);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-space { font-family: 'Space Grotesk', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Animated Gradient Text */
+    .gradient-text-animate {
+      background: linear-gradient(to right, #f42272, #601b9d, #f291d4, #cbcbf6, #f42272);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientFlow 4s linear infinite;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    /* Draw-in Underline Animation */
+    .underline-glow {
+      position: relative;
+    }
+    .underline-glow::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #f42272, #601b9d);
+      border-radius: 2px;
+      box-shadow: 0 0 15px #06B6D4;
+      animation: drawUnderline 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards 0.8s;
+    }
+
+    @keyframes drawUnderline {
+      to { width: 100%; }
+    }
+
+    /* LightBeamButton Specific styles */
+    @property --gradient-angle {
+      syntax: "<angle>";
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    @keyframes border-spin {
+      from { --gradient-angle: 0deg; }
+      to { --gradient-angle: 360deg; }
+    }
+
+    .animate-border-spin { animation: border-spin 2s linear infinite; }
+
+    .light-beam-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      background: #f42272;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .light-beam-btn:hover {
+      background: #0d0d0d;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 30px -5px rgba(6, 182, 212, 0.6);
+    }
+
+    .beam-border {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: 9999px;
+      padding: 2px;
+      background: conic-gradient(from var(--gradient-angle), transparent 0%, var(--color-periwinkle) 30%, var(--color-indigo) 50%, transparent 70%, transparent 100%);
+    }
+
+    /* Sharp Gooey Background */
+    .gooey-wrapper {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0; pointer-events: none;
+    }
+
+    .gradients-container {
+      filter: blur(8px); /* Reduced blur for sharpness */
+      width: 100%; height: 100%;
+    }
+
+    .blob {
+      position: absolute;
+      width: 50%; height: 50%;
+      mix-blend-mode: multiply;
+      opacity: 0.4;
+      border-radius: 50%;
+      transition: all 0.5s ease;
+    }
+
+    .b1 { background: radial-gradient(circle, #cbcbf6 0, transparent 70%); animation: moveB1 10s ease-in-out infinite; }
+    .b2 { background: radial-gradient(circle, #f42272 0, transparent 70%); animation: moveB2 8s ease-in-out infinite; }
+    .b3 { background: radial-gradient(circle, #601b9d 0, transparent 70%); animation: moveB3 14s ease-in-out infinite; }
+    .b4 { background: radial-gradient(circle, #f291d4 0, transparent 70%); animation: moveB4 12s ease-in-out infinite; }
+
+    @keyframes moveB1 { 0%, 100% { top: 10%; left: 10%; } 50% { top: 40%; left: 30%; } }
+    @keyframes moveB2 { 0%, 100% { bottom: 10%; right: 10%; } 50% { bottom: 50%; right: 40%; } }
+    @keyframes moveB3 { 0%, 100% { top: 50%; left: 50%; } 50% { top: 10%; left: 80%; } }
+    @keyframes moveB4 { 0%, 100% { top: 80%; left: 20%; } 50% { top: 30%; left: 60%; } }
+
+    .interactive-blob {
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(203, 203, 246, 0.3) 0, transparent 70%);
+      mix-blend-mode: multiply;
+      top: -300px; left: -300px;
+      opacity: 0.6;
+    }
+
+    .map-path {
+      stroke-dasharray: 10;
+      animation: flow 20s linear infinite;
+    }
+
+    @keyframes flow {
+      from { stroke-dashoffset: 200; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    .destination-image {
+      mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+      opacity: 0.4;
+      filter: grayscale(40%) contrast(120%);
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Glass Card and Tilt Effects */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(32px);
+      border: 1px solid rgba(203, 203, 246, 0.5);
+      border-radius: 28px;
+      transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+      transform-style: preserve-3d;
+    }
+
+    .tilt-container {
+      perspective: 1200px;
+    }
+
+    /* 3D Elements */
+    .cube-container {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      transform-style: preserve-3d;
+      animation: rotateCube 20s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes rotateCube {
+      from { transform: rotateX(0deg) rotateY(0deg); }
+      to { transform: rotateX(360deg) rotateY(360deg); }
+    }
+
+    .cube-face {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: rgba(244, 34, 114, 0.1);
+      border: 1px solid rgba(244, 34, 114, 0.2);
+      backdrop-filter: blur(4px);
+    }
+
+    .face-front  { transform: translateZ(50px); }
+    .face-back   { transform: rotateY(180deg) translateZ(50px); }
+    .face-right  { transform: rotateY(90deg) translateZ(50px); }
+    .face-left   { transform: rotateY(-90deg) translateZ(50px); }
+    .face-top    { transform: rotateX(90deg) translateZ(50px); }
+    .face-bottom { transform: rotateX(-90deg) translateZ(50px); }
+
+    /* Shimmer Animation */
+    .shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: rotate(45deg);
+      animation: shimmerEffect 4s infinite;
+    }
+    @keyframes shimmerEffect {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    /* Floating Particles */
+    .particles-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #nav-pill {
+      transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), width 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.3s ease;
+    }
+
+    /* Custom Bounce curve for dashboard cards */
+    .bounce-float {
+      animation: bounceFloat 6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    @keyframes bounceFloat {
+      0%, 100% { transform: translateY(0) rotateX(0) rotateY(0); }
+      50% { transform: translateY(-20px) rotateX(2deg) rotateY(-2deg); }
+    }
+
+    /* Nav Specific to match instruction: solid-ish background */
+    header nav {
+      background: rgba(248, 246, 255, 0.8) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="relative min-h-screen flex flex-col">
+    
+    <!-- Hyper-Vibrant Background Layer -->
+    <div class="gooey-wrapper">
+      <div class="gradients-container">
+        <div class="blob b1"></div>
+        <div class="blob b2"></div>
+        <div class="blob b3"></div>
+        <div class="blob b4"></div>
+        <div id="interactive" class="interactive-blob"></div>
+      </div>
+    </div>
+
+    <!-- World Map & Migration Paths -->
+    <div class="absolute inset-0 z-0 opacity-20 pointer-events-none">
+      <svg viewBox="0 0 1000 500" class="w-full h-full text-indigo-bloom/10">
+        <!-- Simplified Map Paths -->
+        <path d="M150,150 Q250,100 350,150" fill="none" stroke="url(#grad1)" stroke-width="1.5" class="map-path opacity-40" />
+        <path d="M200,350 Q450,200 700,100" fill="none" stroke="url(#grad1)" stroke-width="1.5" class="map-path opacity-60" />
+        <path d="M220,380 Q500,250 850,250" fill="none" stroke="url(#grad1)" stroke-width="1.5" class="map-path opacity-50" />
+        <defs>
+          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:var(--color-cyan);stop-opacity:0" />
+            <stop offset="50%" style="stop-color:var(--color-cyan);stop-opacity:0.8" />
+            <stop offset="100%" style="stop-color:var(--color-indigo);stop-opacity:0" />
+          </linearGradient>
+        </defs>
+        <!-- Target Nodes -->
+        <circle cx="150" cy="150" r="3" fill="#06B6D4" class="animate-pulse" />
+        <circle cx="700" cy="100" r="3" fill="#6366F1" class="animate-pulse" />
+        <circle cx="850" cy="250" r="3" fill="#8B5CF6" class="animate-pulse" />
+      </svg>
+    </div>
+
+    <!-- 3D Decorative Cubes -->
+    <div class="cube-container" style="top: 20%; left: 5%; opacity: 0.4;">
+      <div class="cube-face face-front"></div><div class="cube-face face-back"></div><div class="cube-face face-right"></div><div class="cube-face face-left"></div><div class="cube-face face-top"></div><div class="cube-face face-bottom"></div>
+    </div>
+    <div class="cube-container" style="bottom: 15%; left: 85%; opacity: 0.3; animation-delay: -5s;">
+      <div class="cube-face face-front" style="border-color: #8B5CF6;"></div><div class="cube-face face-back"></div><div class="cube-face face-right"></div><div class="cube-face face-left"></div><div class="cube-face face-top"></div><div class="cube-face face-bottom"></div>
+    </div>
+
+    <!-- Sticky Nav -->
+    <header class="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4">
+      <nav class="glass-card relative flex items-center h-14 px-2 py-1 gap-1 border-indigo-bloom/20">
+        <div id="nav-pill" class="absolute h-10 bg-indigo-600/10 border border-indigo-600/20 rounded-full opacity-0 z-0"></div>
+        
+        <a href="#" id="nav-logo-link" class="px-4 flex items-center gap-2 group z-10 mr-4">
+          <iconify-icon icon="lucide:compass" class="text-neon-pink text-xl group-hover:rotate-180 transition-transform duration-700"></iconify-icon>
+          <span class="font-space font-bold tracking-tight text-lg">VisaPath AI</span>
+        </a>
+
+        <div class="flex items-center gap-1 z-10">
+          <a href="#features" id="nav-features-link" class="nav-item px-4 py-2 text-sm font-medium text-indigo-950/70 hover:text-indigo-bloom transition-all">Features</a>
+          <a href="#assessment" id="nav-assessment-link" class="nav-item px-4 py-2 text-sm font-medium text-indigo-950/70 hover:text-indigo-bloom transition-all">Assessment</a>
+          <a href="#roadmaps" id="nav-roadmaps-link" class="nav-item px-4 py-2 text-sm font-medium text-indigo-950/70 hover:text-indigo-bloom transition-all">Roadmaps</a>
+          <a href="#advisor" id="nav-advisor-link" class="nav-item px-4 py-2 text-sm font-medium text-indigo-950/70 hover:text-indigo-bloom transition-all">AI Advisor</a>
+          <a href="#pricing" id="nav-pricing-link" class="nav-item px-4 py-2 text-sm font-medium text-indigo-950/70 hover:text-indigo-bloom transition-all">Pricing</a>
+        </div>
+
+        <div class="ml-4 flex items-center gap-3 z-10">
+          <span class="flex h-2 w-2 relative">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-neon-pink"></span>
+          </span>
+          <a href="#login" id="nav-login-link" class="text-xs font-mono tracking-widest uppercase opacity-80 hover:opacity-100 transition-opacity">Sign In</a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Hero Content -->
+    <main class="relative z-10 flex-1 flex flex-col pt-32 overflow-visible">
+      <section class="max-w-7xl mx-auto w-full px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center min-h-[85vh]">
+        
+        <!-- Left: Text content -->
+        <div class="flex flex-col items-start gap-10 hero-text-container">
+          <div class="flex flex-col gap-4">
+            <div class="glass-card self-start px-4 py-1.5 flex items-center gap-2 border-cyan-500/30 shimmer">
+              <iconify-icon icon="lucide:sparkles" class="text-neon-pink animate-pulse"></iconify-icon>
+              <span class="text-xs font-mono text-neon-pink font-medium tracking-widest">AI-POWERED IMMIGRATION INTELLIGENCE</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="h-[1px] w-8 bg-neon-pink/50"></span>
+              <span class="text-sm font-space text-neon-pink/80 font-medium uppercase tracking-[0.2em] drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]">Move from where you are to where you want to be</span>
+            </div>
+          </div>
+          
+          <div class="space-y-6">
+            <h1 class="font-space text-7xl md:text-8xl font-bold leading-[1.05] tracking-tighter text-[#1a0f2e]">
+              Find Your Best <br/>
+              <span class="gradient-text-animate underline-glow">Visa Path</span> <br/>
+              In Minutes
+            </h1>
+            <p class="text-xl md:text-2xl text-indigo-950/70 max-w-xl leading-relaxed">
+              Hyper-personalized pathways. Instant eligibility scoring. AI-driven roadmaps backed by global official sources.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-8">
+            <a href="#assessment" id="cta-assessment-btn" class="light-beam-btn px-12 py-5 h-16 group">
+              <div class="beam-border animate-border-spin"></div>
+              <span class="relative z-10 flex items-center gap-3 font-semibold text-lg tracking-wide">
+                Start Assessment
+                <iconify-icon icon="lucide:zap" class="text-neon-pink group-hover:scale-125 transition-transform"></iconify-icon>
+              </span>
+            </a>
+            
+            <button class="flex items-center gap-4 px-8 py-5 rounded-full border border-indigo-bloom/20 hover:bg-indigo-bloom/5 hover:border-indigo-bloom/40 transition-all text-indigo-bloom group">
+              <span class="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-bloom/5 group-hover:bg-indigo-500/20 group-hover:scale-110 transition-all">
+                <iconify-icon icon="lucide:play" class="text-lg ml-1"></iconify-icon>
+              </span>
+              <span class="font-semibold text-lg">Watch Demo</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-12 mt-4 border-t border-indigo-bloom/10 pt-10">
+            <div class="flex flex-col group cursor-default">
+              <span class="text-3xl font-space font-bold text-indigo-bloom group-hover:text-neon-pink transition-colors">50+</span>
+              <span class="text-xs text-indigo-900/40 uppercase tracking-widest font-mono">Visa Types</span>
+            </div>
+            <div class="flex flex-col group cursor-default">
+              <span class="text-3xl font-space font-bold text-indigo-bloom group-hover:text-indigo-bloom transition-colors">12k+</span>
+              <span class="text-xs text-indigo-900/40 uppercase tracking-widest font-mono">Users Globally</span>
+            </div>
+            <div class="flex flex-col group cursor-default">
+              <span class="text-3xl font-space font-bold text-indigo-bloom group-hover:text-pink-carnation transition-colors">98%</span>
+              <span class="text-xs text-indigo-900/40 uppercase tracking-widest font-mono">Score Accuracy</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 3D Interactive Dashboard -->
+        <div class="relative flex justify-center items-center h-[750px] tilt-container">
+          
+          <!-- Backdrop Destination Context -->
+          <div class="absolute inset-0 -z-10 pointer-events-none overflow-hidden rounded-[40px] opacity-60">
+            <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&q=80&w=1200" class="absolute top-0 right-0 w-[600px] h-full object-cover destination-image grayscale opacity-30 mix-blend-screen" alt="NYC Skyline">
+          </div>
+
+          <!-- Floating Country Pathway 1 (Canada) -->
+          <div class="glass-card absolute -top-10 -left-10 w-52 p-4 bounce-float z-10 border-indigo-bloom/10 bg-white/5" style="animation-delay: -2s; animation-duration: 4s;">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-lg">🇮🇳</span>
+              <iconify-icon icon="lucide:arrow-right" class="text-indigo-900/20 text-xs"></iconify-icon>
+              <span class="text-lg">🇨🇦</span>
+            </div>
+            <div class="space-y-1.5">
+              <p class="text-[10px] font-mono text-neon-pink uppercase tracking-widest">Express Entry</p>
+              <div class="flex justify-between items-end">
+                <span class="text-sm font-space font-bold">Canada PR</span>
+                <span class="text-xs text-green-400 font-mono">82%</span>
+              </div>
+              <div class="w-full h-1 bg-indigo-bloom/5 rounded-full overflow-hidden">
+                <div class="h-full bg-green-500 w-[82%]"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating Country Pathway 2 (Germany) -->
+          <div class="glass-card absolute top-1/3 -right-20 w-52 p-4 bounce-float z-20 border-indigo-bloom/10 bg-white/5 shadow-2xl" style="animation-delay: -4s; animation-duration: 5s;">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-lg">🇮🇳</span>
+              <iconify-icon icon="lucide:arrow-right" class="text-indigo-900/20 text-xs"></iconify-icon>
+              <span class="text-lg">🇩🇪</span>
+            </div>
+            <div class="space-y-1.5">
+              <p class="text-[10px] font-mono text-indigo-400 uppercase tracking-widest">Opportunity Card</p>
+              <div class="flex justify-between items-end">
+                <span class="text-sm font-space font-bold">Germany Job</span>
+                <span class="text-xs text-indigo-400 font-mono">75%</span>
+              </div>
+              <div class="w-full h-1 bg-indigo-bloom/5 rounded-full overflow-hidden">
+                <div class="h-full bg-indigo-500 w-[75%]"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card 1: Score -->
+          <div class="glass-card tilt-card absolute top-0 right-10 w-64 p-8 bounce-float z-30 shadow-[0_30px_60px_-15px_rgba(6,182,212,0.3)]" style="animation-delay: -1.5s;">
+            <div class="flex justify-between items-start mb-8">
+              <span class="text-xs font-mono text-neon-pink tracking-tighter">PROBABILITY SCORE</span>
+              <iconify-icon icon="lucide:activity" class="text-neon-pink text-xl animate-pulse"></iconify-icon>
+            </div>
+            <div class="relative flex flex-col items-center">
+               <svg class="w-40 h-40 transform -rotate-90">
+                <circle cx="80" cy="80" r="72" stroke="currentColor" stroke-width="10" fill="transparent" class="text-indigo-bloom/5" />
+                <circle cx="80" cy="80" r="72" stroke="currentColor" stroke-width="10" fill="transparent" class="text-neon-pink" stroke-dasharray="452" stroke-dashoffset="58" stroke-linecap="round" style="filter: drop-shadow(0 0 8px #06B6D4)" />
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-4xl font-space font-bold tracking-tight">87%</span>
+                <span class="text-[10px] text-neon-pink uppercase tracking-widest mt-1">High Priority</span>
+              </div>
+            </div>
+            <div class="mt-6 text-xs text-center text-indigo-950/50 leading-relaxed">
+              Matches Skilling Visa Type-A & Skilled Worker criteria.
+            </div>
+          </div>
+
+          <!-- Card 2: Roadmap Timeline -->
+          <div class="glass-card tilt-card absolute bottom-10 left-0 w-80 p-8 bounce-float z-20 shadow-[0_30px_60px_-15px_rgba(99,102,241,0.3)]" style="animation-delay: -3.5s;">
+            <div class="flex items-center gap-3 mb-8">
+              <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/40">
+                 <iconify-icon icon="lucide:map" class="text-indigo-400"></iconify-icon>
+              </div>
+              <span class="font-space font-bold text-lg">Your Roadmap</span>
+            </div>
+            <div class="space-y-8">
+              <div class="flex gap-5 relative group">
+                <div class="absolute left-3.5 top-7 bottom-0 w-[2px] bg-gradient-to-b from-neon-pink to-indigo-bloom/10 transition-all group-hover:from-cyan-400"></div>
+                <div class="w-7 h-7 rounded-full bg-neon-pink flex-shrink-0 flex items-center justify-center z-10 shadow-[0_0_15px_#06B6D4]">
+                  <iconify-icon icon="lucide:check" class="text-indigo-bloom text-sm"></iconify-icon>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-sm font-semibold">Eligibility Check</span>
+                  <span class="text-[11px] text-indigo-900/40 uppercase font-mono tracking-tighter">VERIFIED MAR 2024</span>
+                </div>
+              </div>
+              <div class="flex gap-5 relative group">
+                <div class="absolute left-3.5 top-7 bottom-0 w-[2px] bg-white/5"></div>
+                <div class="w-7 h-7 rounded-full bg-indigo-500/20 border-2 border-indigo-500 flex-shrink-0 flex items-center justify-center z-10">
+                  <div class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></div>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-sm font-semibold text-indigo-400">Document Intelligence</span>
+                  <span class="text-[11px] text-indigo-900/40 italic font-mono">SCANNING... 64%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: AI Advisor Chat -->
+          <div class="glass-card tilt-card absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] overflow-hidden bounce-float z-40 shadow-[0_40px_80px_-20px_rgba(139,92,246,0.3)]" style="animation-delay: -0.5s;">
+             <div class="bg-white/5 border-b border-white/10 px-6 py-4 flex items-center justify-between backdrop-blur-3xl">
+               <div class="flex items-center gap-3">
+                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-neon-pink via-indigo-bloom to-pink-carnation flex items-center justify-center p-[2px]">
+                   <div class="w-full h-full rounded-full bg-[#030303] flex items-center justify-center">
+                     <iconify-icon icon="lucide:cpu" class="text-neon-pink text-lg"></iconify-icon>
+                   </div>
+                 </div>
+                 <div class="flex flex-col">
+                   <span class="text-sm font-bold tracking-tight">Immigration Intelligence</span>
+                   <span class="text-[10px] text-green-400 flex items-center gap-1 font-mono uppercase tracking-widest">
+                     <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                     AI Online
+                   </span>
+                 </div>
+               </div>
+               <iconify-icon icon="lucide:settings-2" class="text-indigo-900/20 hover:text-indigo-bloom transition-colors cursor-pointer"></iconify-icon>
+             </div>
+             <div class="p-6 space-y-6">
+               <div class="flex flex-col items-end">
+                 <div class="bg-indigo-bloom/10 border border-indigo-bloom/30 px-4 py-3 rounded-2xl rounded-tr-none text-xs text-indigo-bloom max-w-[85%] leading-relaxed">
+                   Analyze my eligibility for the Canadian PR Skilled Worker path.
+                 </div>
+               </div>
+               <div class="flex items-start gap-4">
+                 <div class="bg-neon-pink/10 border border-cyan-500/30 px-5 py-4 rounded-2xl rounded-tl-none text-sm text-indigo-bloom max-w-[95%] leading-relaxed relative overflow-hidden">
+                   <div class="absolute top-0 left-0 w-1 h-full bg-neon-pink"></div>
+                   Generating comprehensive report... I've detected your Masters degree & 4 years in Tech. You exceed the threshold by 14 points. <span class="inline-block animate-pulse w-2 h-4 bg-cyan-400 ml-1 rounded-sm"></span>
+                 </div>
+               </div>
+               <div class="pt-2">
+                  <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                    <span class="flex-shrink-0 px-4 py-2 rounded-xl bg-periwinkle/10 border border-periwinkle/30 text-[11px] text-indigo-bloom/60 hover:bg-indigo-bloom/5 transition-colors cursor-pointer">Calculate Fees</span>
+                    <span class="flex-shrink-0 px-4 py-2 rounded-xl bg-periwinkle/10 border border-periwinkle/30 text-[11px] text-indigo-bloom/60 hover:bg-indigo-bloom/5 transition-colors cursor-pointer">Official Sources</span>
+                  </div>
+               </div>
+             </div>
+          </div>
+
+          <!-- Interactive Accent Glows -->
+          <div class="absolute -z-10 w-[600px] h-[600px] bg-neon-pink/10 blur-[120px] rounded-full animate-pulse"></div>
+          <div class="absolute -z-10 w-[400px] h-[400px] bg-purple-500/10 blur-[100px] rounded-full bottom-0 right-0" style="animation: pulse 8s infinite alternate;"></div>
+        </div>
+
+      </section>
+
+      <!-- Global Destination Carousel -->
+      <section class="w-full mt-10 mb-20 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="flex items-center justify-between mb-8">
+            <div class="flex flex-col gap-1">
+              <h3 class="font-space font-bold text-2xl">Explore Top Pathways</h3>
+              <p class="text-indigo-900/40 text-sm">Real-time matching scores across global tech hubs.</p>
+            </div>
+            <div class="flex gap-2">
+              <button class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors"><iconify-icon icon="lucide:chevron-left"></iconify-icon></button>
+              <button class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors"><iconify-icon icon="lucide:chevron-right"></iconify-icon></button>
+            </div>
+          </div>
+          
+          <div class="flex gap-6 overflow-x-auto no-scrollbar pb-10 cursor-grab active:cursor-grabbing">
+            <!-- Carousel Card: Canada -->
+            <div class="flex-shrink-0 w-80 glass-card p-4 group hover:scale-[1.02] hover:-translate-y-2 transition-all duration-500 border-indigo-bloom/10">
+              <div class="relative h-44 rounded-2xl overflow-hidden mb-4">
+                <img src="https://images.unsplash.com/photo-1517090504586-fde19ea6066f?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="Toronto">
+                <div class="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent"></div>
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-indigo-bloom/5 backdrop-blur-md text-xs font-mono border border-white/10">🇨🇦 CANADA</span>
+              </div>
+              <div class="space-y-4">
+                <div class="flex justify-between items-start">
+                  <h4 class="font-space font-bold text-lg leading-tight">Express Entry <br/><span class="text-sm text-indigo-950/50 font-normal">Skilled Worker</span></h4>
+                  <div class="flex flex-col items-end">
+                    <span class="text-green-400 font-mono text-sm">87%</span>
+                    <span class="text-[10px] text-indigo-900/40 uppercase tracking-widest">Match</span>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center pt-4 border-t border-indigo-bloom/10">
+                  <span class="text-xs text-indigo-900/40">EST. PROCESSING</span>
+                  <span class="text-xs font-mono text-neon-pink">6-9 MONTHS</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Carousel Card: UK -->
+            <div class="flex-shrink-0 w-80 glass-card p-4 group hover:scale-[1.02] hover:-translate-y-2 transition-all duration-500 border-indigo-bloom/10">
+              <div class="relative h-44 rounded-2xl overflow-hidden mb-4">
+                <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="London">
+                <div class="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent"></div>
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-indigo-bloom/5 backdrop-blur-md text-xs font-mono border border-white/10">🇬🇧 UNITED KINGDOM</span>
+              </div>
+              <div class="space-y-4">
+                <div class="flex justify-between items-start">
+                  <h4 class="font-space font-bold text-lg leading-tight">Global Talent <br/><span class="text-sm text-indigo-950/50 font-normal">Tech City</span></h4>
+                  <div class="flex flex-col items-end">
+                    <span class="text-indigo-400 font-mono text-sm">74%</span>
+                    <span class="text-[10px] text-indigo-900/40 uppercase tracking-widest">Match</span>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center pt-4 border-t border-indigo-bloom/10">
+                  <span class="text-xs text-indigo-900/40">EST. PROCESSING</span>
+                  <span class="text-xs font-mono text-indigo-400">3-5 MONTHS</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Carousel Card: Japan -->
+            <div class="flex-shrink-0 w-80 glass-card p-4 group hover:scale-[1.02] hover:-translate-y-2 transition-all duration-500 border-indigo-bloom/10">
+              <div class="relative h-44 rounded-2xl overflow-hidden mb-4">
+                <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="Tokyo">
+                <div class="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent"></div>
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-indigo-bloom/5 backdrop-blur-md text-xs font-mono border border-white/10">🇯🇵 JAPAN</span>
+              </div>
+              <div class="space-y-4">
+                <div class="flex justify-between items-start">
+                  <h4 class="font-space font-bold text-lg leading-tight">Engineer Visa <br/><span class="text-sm text-indigo-950/50 font-normal">Specialist in Humanities</span></h4>
+                  <div class="flex flex-col items-end">
+                    <span class="text-purple-400 font-mono text-sm">62%</span>
+                    <span class="text-[10px] text-indigo-900/40 uppercase tracking-widest">Match</span>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center pt-4 border-t border-indigo-bloom/10">
+                  <span class="text-xs text-indigo-900/40">EST. PROCESSING</span>
+                  <span class="text-xs font-mono text-purple-400">1-2 MONTHS</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Carousel Card: Australia -->
+            <div class="flex-shrink-0 w-80 glass-card p-4 group hover:scale-[1.02] hover:-translate-y-2 transition-all duration-500 border-indigo-bloom/10">
+              <div class="relative h-44 rounded-2xl overflow-hidden mb-4">
+                <img src="https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="Sydney">
+                <div class="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent"></div>
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-indigo-bloom/5 backdrop-blur-md text-xs font-mono border border-white/10">🇦🇺 AUSTRALIA</span>
+              </div>
+              <div class="space-y-4">
+                <div class="flex justify-between items-start">
+                  <h4 class="font-space font-bold text-lg leading-tight">189 Skilled <br/><span class="text-sm text-indigo-950/50 font-normal">Independent Visa</span></h4>
+                  <div class="flex flex-col items-end">
+                    <span class="text-neon-pink font-mono text-sm">81%</span>
+                    <span class="text-[10px] text-indigo-900/40 uppercase tracking-widest">Match</span>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center pt-4 border-t border-indigo-bloom/10">
+                  <span class="text-xs text-indigo-900/40">EST. PROCESSING</span>
+                  <span class="text-xs font-mono text-neon-pink">12-18 MONTHS</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Status Ticker / Footer Footer -->
+    <footer class="relative z-50 w-full px-12 py-10 flex flex-col md:flex-row justify-between items-center gap-10 max-w-7xl mx-auto border-t border-indigo-bloom/10 mt-auto bg-[#f8f6ff]">
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-green-500"></div>
+          <span class="text-[10px] font-mono uppercase tracking-widest text-indigo-900/40">Node: Global_North_API</span>
+        </div>
+        <div class="text-indigo-bloom/30 text-[10px] font-mono uppercase tracking-[0.2em]">© 2024 VISAPATH PROTOCOL. ENCRYPTED.</div>
+      </div>
+      
+      <div class="flex items-center gap-10">
+        <div class="flex gap-6">
+          <a href="#" id="footer-legal-link" class="text-[10px] font-mono text-indigo-900/40 hover:text-neon-pink transition-colors uppercase">Privacy</a>
+          <a href="#" id="footer-terms-link" class="text-[10px] font-mono text-indigo-900/40 hover:text-indigo-400 transition-colors uppercase">Terms</a>
+          <a href="#" id="footer-api-link" class="text-[10px] font-mono text-indigo-900/40 hover:text-purple-400 transition-colors uppercase">API</a>
+        </div>
+        <div class="flex gap-4">
+          <iconify-icon icon="ri:discord-fill" class="text-indigo-bloom/30 hover:text-neon-pink text-xl cursor-pointer transition-colors"></iconify-icon>
+          <iconify-icon icon="ri:github-fill" class="text-indigo-bloom/30 hover:text-indigo-bloom text-xl cursor-pointer transition-colors"></iconify-icon>
+          <iconify-icon icon="ri:twitter-x-line" class="text-indigo-bloom/30 hover:text-indigo-bloom text-xl cursor-pointer transition-colors"></iconify-icon>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Interactive Tilt Logic for Dashboard Cards
+    const tiltCards = document.querySelectorAll('.tilt-card');
+    const tiltContainer = document.querySelector('.tilt-container');
+
+    tiltContainer.addEventListener('mousemove', (e) => {
+      const rect = tiltContainer.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const rotateX = (y - centerY) / 20;
+      const rotateY = (centerX - x) / 20;
+
+      tiltCards.forEach((card, index) => {
+        // Each card gets a slightly different tilt sensitivity for parallax effect
+        const factor = 1 + (index * 0.2);
+        card.style.transform = `perspective(1000px) rotateX(${rotateX * factor}deg) rotateY(${rotateY * factor}deg) translateZ(${index * 20}px)`;
+      });
+    });
+
+    tiltContainer.addEventListener('mouseleave', () => {
+      tiltCards.forEach((card) => {
+        card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)`;
+      });
+    });
+
+    // Mouse following effect for the gooey background
+    const interactive = document.getElementById('interactive');
+    let curX = 0; let curY = 0; let tgX = 0; let tgY = 0;
+
+    function move() {
+      curX += (tgX - curX) / 25;
+      curY += (tgY - curY) / 25;
+      interactive.style.transform = `translate(${Math.round(curX)}px, ${Math.round(curY)}px)`;
+      requestAnimationFrame(move);
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      tgX = e.clientX;
+      tgY = e.clientY;
+    });
+
+    move();
+
+    // Pill Nav Logic
+    const navItems = document.querySelectorAll('.nav-item');
+    const navPill = document.getElementById('nav-pill');
+
+    navItems.forEach(item => {
+      item.addEventListener('mouseenter', (e) => {
+        const { offsetLeft, offsetWidth } = e.target;
+        navPill.style.opacity = '1';
+        navPill.style.width = `${offsetWidth}px`;
+        navPill.style.transform = `translateX(${offsetLeft}px)`;
+      });
+    });
+
+    document.querySelector('nav').addEventListener('mouseleave', () => {
+      navPill.style.opacity = '0';
+    });
+
+    // GSAP Entrance Sequence
+    gsap.registerPlugin(ScrollTrigger);
+
+    window.addEventListener('load', () => {
+      const tl = gsap.timeline();
+
+      tl.from("nav", {
+        y: -100, opacity: 0, duration: 1.2, ease: "power4.out"
+      })
+      .from(".hero-text-container > div:first-child", {
+        scale: 0.8, opacity: 0, duration: 0.8, ease: "back.out(2)"
+      }, "-=0.6")
+      .from("h1", {
+        y: 60, opacity: 0, duration: 1, ease: "power3.out"
+      }, "-=0.4")
+      .from("p", {
+        y: 40, opacity: 0, duration: 0.8, ease: "power3.out"
+      }, "-=0.6")
+      .from(".light-beam-btn, button", {
+        scale: 0.9, opacity: 0, duration: 0.8, stagger: 0.15, ease: "power2.out"
+      }, "-=0.4")
+      .from(".tilt-card", {
+        z: -200, opacity: 0, duration: 1.2, stagger: 0.2, ease: "power4.out"
+      }, "-=0.8")
+      .from(".cube-container", {
+        scale: 0, opacity: 0, duration: 2, ease: "elastic.out(1, 0.3)"
+      }, "-=1");
+    });
+  </script>
+</body>
+</html>
