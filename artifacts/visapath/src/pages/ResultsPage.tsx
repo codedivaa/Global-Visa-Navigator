@@ -5,6 +5,8 @@ import NavBar from '@/components/NavBar';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { loadAssessment } from '@/types';
 import { calculateScores, type ScoringResult, type VisaScore } from '@/lib/scoring';
+import { useAuth } from '@/contexts/AuthContext';
+import { saveRecommendationsToDb } from '@/lib/db';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -103,6 +105,7 @@ function VisaCard({ match, rank }: { match: VisaScore; rank?: number }) {
 
 export default function ResultsPage() {
   const [, navigate] = useLocation();
+  const { user } = useAuth();
   const [results, setResults] = useState<ScoringResult | null>(null);
   const [targetCountry, setTargetCountry] = useState('');
   const [aiInsights, setAiInsights] = useState<{ qualification: string; risks: string } | null>(null);
@@ -130,6 +133,13 @@ export default function ResultsPage() {
         .finally(() => setInsightsLoading(false));
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (!user || !results) return;
+    const assessmentId = localStorage.getItem('visapath_assessment_id');
+    if (!assessmentId) return;
+    saveRecommendationsToDb(user.id, assessmentId, results.topMatches);
+  }, [user, results]);
 
   if (!results) return null;
 

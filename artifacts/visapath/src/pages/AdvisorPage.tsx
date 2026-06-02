@@ -5,6 +5,8 @@ import gsap from 'gsap';
 import NavBar from '@/components/NavBar';
 import { loadAssessment, type Assessment } from '@/types';
 import { calculateScores } from '@/lib/scoring';
+import { useAuth } from '@/contexts/AuthContext';
+import { loadAdvisorChat, upsertAdvisorChat } from '@/lib/db';
 
 type Message = {
   role: 'ai' | 'user';
@@ -27,6 +29,7 @@ function formatTime() {
 }
 
 export default function AdvisorPage() {
+  const { user, loading: authLoading } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [assessment, setAssessment] = useState<Assessment | null>(null);
@@ -34,10 +37,18 @@ export default function AdvisorPage() {
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [chatId, setChatId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<Message[]>([]);
+
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
 
   useEffect(() => {
+    if (authLoading) return;
+
     const data = loadAssessment() as Assessment | null;
+    const storedAssessmentId = localStorage.getItem('visapath_assessment_id');
+
     if (data) {
       setAssessment(data);
       const scores = calculateScores(data);
@@ -45,7 +56,19 @@ export default function AdvisorPage() {
       if (top) {
         const tv = { id: top.visa.id, name: top.visa.name, country: top.visa.country, score: top.score };
         setTopVisa(tv);
-        fetchAnalysis(data, tv);
+
+        if (user && storedAssessmentId) {
+          loadAdvisorChat(user.id, storedAssessmentId).then(existing => {
+            if (existing && (existing.messages as Message[]).length > 1) {
+              setChatId(existing.id);
+              setMessages(existing.messages as Message[]);
+            } else {
+              fetchAnalysis(data, tv);
+            }
+          });
+        } else {
+          fetchAnalysis(data, tv);
+        }
       } else {
         setMessages([{
           role: 'ai',
@@ -62,7 +85,7 @@ export default function AdvisorPage() {
     }
 
     gsap.from('.suggestion-chip', { scale: 0.9, opacity: 0, duration: 0.6, stagger: 0.1, ease: 'back.out(2)' });
-  }, []);
+  }, [authLoading]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -183,6 +206,13 @@ export default function AdvisorPage() {
       });
     } finally {
       setIsSending(false);
+      if (user) {
+        const storedId = localStorage.getItem('visapath_assessment_id');
+        setTimeout(() => {
+          upsertAdvisorChat(user.id, storedId, messagesRef.current, chatId ?? undefined)
+            .then(id => { if (id && !chatId) setChatId(id); });
+        }, 100);
+      }
     }
   };
 

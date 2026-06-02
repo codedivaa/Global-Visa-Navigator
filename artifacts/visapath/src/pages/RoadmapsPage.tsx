@@ -5,6 +5,8 @@ import NavBar from '@/components/NavBar';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { loadAssessment, type Assessment } from '@/types';
 import { calculateScores, type VisaScore } from '@/lib/scoring';
+import { useAuth } from '@/contexts/AuthContext';
+import { saveRoadmapToDb } from '@/lib/db';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -382,6 +384,7 @@ const PRICING_MAP: Record<string, { item: string; cost: string }[]> = {
 };
 
 export default function RoadmapsPage() {
+  const { user } = useAuth();
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [topMatch, setTopMatch] = useState<VisaScore | null>(null);
   const [aiRoadmap, setAiRoadmap] = useState<Array<{ month: string; label: string; detail: string }> | null>(null);
@@ -442,6 +445,13 @@ export default function RoadmapsPage() {
 
   const docs = topMatch ? (DOC_MAP[topMatch.visa.id] ?? []) : [];
   const pricing = aiPricing ?? (topMatch ? (PRICING_MAP[topMatch.visa.id] ?? []) : []);
+
+  useEffect(() => {
+    if (!user || !topMatch || roadmapLoading || pricingLoading) return;
+    const assessmentId = localStorage.getItem('visapath_assessment_id');
+    if (!assessmentId) return;
+    saveRoadmapToDb(user.id, assessmentId, { milestones, pricing, aiPricingTotal });
+  }, [user, topMatch, roadmapLoading, pricingLoading]);
 
   return (
     <div className="relative min-h-screen flex flex-col bg-[#f8f6ff]">

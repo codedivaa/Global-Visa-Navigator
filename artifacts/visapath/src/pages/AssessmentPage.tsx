@@ -6,6 +6,8 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 import CountrySelect from '@/components/CountrySelect';
 import { saveAssessment } from '@/types';
 import { ALL_COUNTRIES, DESTINATION_COUNTRIES } from '@/data/countries';
+import { useAuth } from '@/contexts/AuthContext';
+import { saveAssessmentToDb } from '@/lib/db';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -154,6 +156,7 @@ const TOTAL_STEPS = 10;
 
 export default function AssessmentPage() {
   const [, navigate] = useLocation();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -211,6 +214,11 @@ export default function AssessmentPage() {
       setCurrentStep(s => s + 1);
     } else {
       saveAssessment(answers);
+      if (user) {
+        saveAssessmentToDb(user.id, answers).then(id => {
+          if (id) localStorage.setItem('visapath_assessment_id', id);
+        });
+      }
       navigate('/results');
     }
   };
