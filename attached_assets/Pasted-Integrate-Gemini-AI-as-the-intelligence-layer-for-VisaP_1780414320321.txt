@@ -1,0 +1,190 @@
+Integrate Gemini AI as the intelligence layer for VisaPath AI.
+
+IMPORTANT:
+
+Do not redesign UI.
+
+Do not modify layouts.
+
+Do not change animations.
+
+Do not change branding.
+
+Keep all existing pages.
+
+==================================================
+GOAL
+====
+
+Transform VisaPath from a static assessment into an intelligent immigration advisor.
+
+Gemini should enhance:
+
+* Assessment
+* Recommendations
+* Roadmaps
+* Pricing estimates
+* AI Advisor
+
+==================================================
+ASSESSMENT INTELLIGENCE
+=======================
+
+When a user selects:
+
+* Nationality
+* Current Country
+* Target Country
+* Immigration Goal
+
+Use Gemini to generate follow-up questions dynamically.
+
+Example:
+
+Target Country = Japan
+Goal = Study
+
+Ask:
+
+* University acceptance status
+* Japanese proficiency
+* Financial proof
+* Intended program
+
+Target Country = Germany
+Goal = Work
+
+Ask:
+
+* German proficiency
+* Degree recognition
+* Occupation
+* Years of experience
+
+Target Country = Canada
+Goal = PR
+
+Ask:
+
+* IELTS score
+* French proficiency
+* CRS-related factors
+
+Questions should adapt based on country and goal.
+
+==================================================
+AI RECOMMENDATIONS
+==================
+
+Gemini should generate:
+
+* Eligibility explanation
+* Missing requirements
+* Risks
+* Strengths
+* Weaknesses
+* Improvement suggestions
+
+The recommendation must reference:
+
+* User profile
+* Destination country
+* Immigration goal
+
+==================================================
+ROADMAP GENERATION
+==================
+
+Generate personalized immigration roadmaps.
+
+Example:
+
+Japan Study Visa
+
+1. Obtain university acceptance
+2. Prepare financial documents
+3. Apply for Certificate of Eligibility
+4. Submit visa application
+5. Travel preparation
+
+Germany Work Visa
+
+1. Degree recognition
+2. Job search
+3. Employer sponsorship
+4. Visa application
+5. Relocation
+
+==================================================
+PRICING ESTIMATES
+=================
+
+Gemini should generate country-specific cost breakdowns.
+
+Examples:
+
+* Visa fees
+* Language exams
+* Credential evaluation
+* Medical examination
+* Flight costs
+* Initial settlement expenses
+
+Display estimated total costs.
+
+==================================================
+AI ADVISOR
+==========
+
+Advisor should understand:
+
+* Assessment answers
+* Destination country
+* Immigration goal
+* Recommendation results
+
+Generate:
+
+* Personalized guidance
+* Visa pathway advice
+* Common mistakes
+* Next steps
+* Document requirements
+
+==================================================
+SCORING SAFETY
+==============
+
+Do NOT allow Gemini to calculate final scores.
+
+Keep scoring rule-based.
+
+Use Gemini only for:
+
+* Questions
+* Explanations
+* Advice
+* Roadmaps
+* Cost estimates
+
+Rule Engine:
+Determines score.
+
+Gemini:
+Explains score.
+
+==================================================
+FALLBACK
+========
+
+If Gemini fails:
+
+Use existing rule-based assessment.
+
+The application must continue working.
+
+==================================================
+FINAL GOAL
+==========
+
+The user should feel like they are speaking with an intelligent immigration consultant rather than completing a generic questionnaire.

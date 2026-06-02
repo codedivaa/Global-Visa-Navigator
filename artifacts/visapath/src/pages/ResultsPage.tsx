@@ -6,6 +6,8 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 import { loadAssessment } from '@/types';
 import { calculateScores, type ScoringResult, type VisaScore } from '@/lib/scoring';
 
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 function VisaCard({ match, rank }: { match: VisaScore; rank?: number }) {
   const [open, setOpen] = useState(false);
   return (
@@ -103,6 +105,8 @@ export default function ResultsPage() {
   const [, navigate] = useLocation();
   const [results, setResults] = useState<ScoringResult | null>(null);
   const [targetCountry, setTargetCountry] = useState('');
+  const [aiInsights, setAiInsights] = useState<{ qualification: string; risks: string } | null>(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
 
   useEffect(() => {
     const data = loadAssessment();
@@ -111,6 +115,20 @@ export default function ResultsPage() {
     const scored = calculateScores(data as any);
     setResults(scored);
     setTargetCountry((data as any).targetCountry ?? '');
+
+    const top = scored.topMatches[0];
+    if (top) {
+      setInsightsLoading(true);
+      fetch(`${BASE}/api/ai/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assessment: data, visaId: top.visa.id, visaName: top.visa.name, visaCountry: top.visa.country, score: top.score }),
+      })
+        .then(r => r.json())
+        .then(d => { if (d.qualification) setAiInsights({ qualification: d.qualification, risks: d.risks }); })
+        .catch(() => {})
+        .finally(() => setInsightsLoading(false));
+    }
   }, [navigate]);
 
   if (!results) return null;
@@ -170,6 +188,39 @@ export default function ResultsPage() {
                 </p>
               )}
             </div>
+
+            {(insightsLoading || aiInsights) && (
+              <div className="glass-card p-6 border-l-4 border-l-neon-pink">
+                <h3 className="font-space font-bold text-sm mb-3 flex items-center gap-2 text-indigo-bloom">
+                  <Icon icon="lucide:sparkles" className="text-neon-pink" />
+                  AI Assessment
+                </h3>
+                {insightsLoading ? (
+                  <div className="space-y-2 animate-pulse">
+                    <div className="h-3 bg-indigo-bloom/10 rounded w-full" />
+                    <div className="h-3 bg-indigo-bloom/10 rounded w-5/6" />
+                    <div className="h-3 bg-indigo-bloom/10 rounded w-4/6" />
+                    <div className="h-3 bg-indigo-bloom/10 rounded w-full mt-4" />
+                    <div className="h-3 bg-indigo-bloom/10 rounded w-3/4" />
+                  </div>
+                ) : aiInsights && (
+                  <div className="space-y-4 text-xs text-indigo-950/70 leading-relaxed">
+                    <div>
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-green-600 block mb-1 flex items-center gap-1">
+                        <Icon icon="lucide:check-circle" className="text-[10px]" /> Why you qualify
+                      </span>
+                      <p>{aiInsights.qualification}</p>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-amber-600 block mb-1 flex items-center gap-1">
+                        <Icon icon="lucide:alert-triangle" className="text-[10px]" /> Key risks
+                      </span>
+                      <p>{aiInsights.risks}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <Link href="/advisor" className="light-beam-btn w-full py-5 text-lg font-semibold group flex items-center justify-center gap-3">
               <div className="beam-border animate-border-spin"></div>

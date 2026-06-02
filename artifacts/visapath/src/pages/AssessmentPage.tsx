@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import { useLocation } from 'wouter';
 import NavBar from '@/components/NavBar';
@@ -6,6 +6,8 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 import CountrySelect from '@/components/CountrySelect';
 import { saveAssessment } from '@/types';
 import { ALL_COUNTRIES, DESTINATION_COUNTRIES } from '@/data/countries';
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 type Answers = {
   immigrationGoal: string;
@@ -217,9 +219,36 @@ export default function AssessmentPage() {
     if (currentStep > 1) setCurrentStep(s => s - 1);
   };
 
+  const [aiQuestions, setAiQuestions] = useState<Array<{ id: string; question: string; options: string[] }> | null>(null);
+  const [questionsLoading, setQuestionsLoading] = useState(false);
+
+  useEffect(() => {
+    if (currentStep !== 9) return;
+    if (!answers.targetCountry || !answers.immigrationGoal) return;
+    let cancelled = false;
+    setAiQuestions(null);
+    setQuestionsLoading(true);
+    fetch(`${BASE}/api/ai/questions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nationality: answers.nationality,
+        currentCountry: answers.currentCountry,
+        targetCountry: answers.targetCountry,
+        immigrationGoal: answers.immigrationGoal,
+      }),
+    })
+      .then(r => r.json())
+      .then(data => { if (!cancelled && Array.isArray(data.questions)) setAiQuestions(data.questions); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setQuestionsLoading(false); });
+    return () => { cancelled = true; };
+  }, [currentStep, answers.targetCountry, answers.immigrationGoal]);
+
   const targetLower = answers.targetCountry.toLowerCase();
   const langConfig = LANG_OPTIONS[targetLower];
   const countryQuestions = COUNTRY_QUESTIONS[answers.targetCountry] ?? DEFAULT_QUESTIONS;
+  const displayQuestions = aiQuestions ?? countryQuestions;
 
   const needsLanguageStep = !!langConfig;
 
@@ -519,11 +548,34 @@ export default function AssessmentPage() {
                   <div className="px-2 py-0.5 bg-neon-pink/10 text-neon-pink text-[10px] font-mono rounded-full uppercase tracking-widest">
                     {answers.targetCountry || 'Destination'}-specific
                   </div>
+                  {aiQuestions && (
+                    <div className="px-2 py-0.5 bg-indigo-bloom/8 text-indigo-bloom text-[10px] font-mono rounded-full uppercase tracking-widest flex items-center gap-1">
+                      <Icon icon="lucide:sparkles" className="text-[10px]" /> AI Generated
+                    </div>
+                  )}
                 </div>
                 <h1 className="text-4xl font-space font-bold">Personalized Questions</h1>
                 <p className="text-[#4b3b6b] text-lg">These questions are tailored specifically to your destination and immigration goal to sharpen your eligibility score.</p>
               </div>
-              {countryQuestions.map(q => (
+
+              {questionsLoading ? (
+                <div className="space-y-8">
+                  {[1, 2].map(i => (
+                    <div key={i} className="space-y-3 animate-pulse">
+                      <div className="h-4 bg-indigo-bloom/10 rounded-lg w-4/5" />
+                      <div className="space-y-2">
+                        {[1, 2, 3, 4].map(j => (
+                          <div key={j} className="h-12 bg-indigo-bloom/6 rounded-xl" />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-2 text-xs text-indigo-bloom/60 font-mono">
+                    <Icon icon="lucide:sparkles" className="text-neon-pink animate-pulse" />
+                    Generating personalised questions for {answers.targetCountry}…
+                  </div>
+                </div>
+              ) : displayQuestions.map(q => (
                 <div key={q.id}>
                   <label className="text-sm font-semibold text-[#1a0f2e] mb-3 block">{q.question}</label>
                   <div className="flex flex-col gap-2">

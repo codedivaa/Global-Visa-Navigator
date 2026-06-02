@@ -6,6 +6,8 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 import { loadAssessment, type Assessment } from '@/types';
 import { calculateScores, type VisaScore } from '@/lib/scoring';
 
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 // ── Document checklists ────────────────────────────────────────────────────────
 const DOC_MAP: Record<string, string[]> = {
   'canada-ee': [
@@ -382,22 +384,64 @@ const PRICING_MAP: Record<string, { item: string; cost: string }[]> = {
 export default function RoadmapsPage() {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [topMatch, setTopMatch] = useState<VisaScore | null>(null);
+  const [aiRoadmap, setAiRoadmap] = useState<Array<{ month: string; label: string; detail: string }> | null>(null);
+  const [aiPricing, setAiPricing] = useState<Array<{ item: string; cost: string }> | null>(null);
+  const [aiPricingTotal, setAiPricingTotal] = useState<string | null>(null);
+  const [roadmapLoading, setRoadmapLoading] = useState(false);
+  const [pricingLoading, setPricingLoading] = useState(false);
+
+  async function fetchAiRoadmap(data: Assessment, top: VisaScore) {
+    setRoadmapLoading(true);
+    try {
+      const r = await fetch(`${BASE}/api/ai/roadmap`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assessment: data, visaId: top.visa.id, visaName: top.visa.name, visaCountry: top.visa.country, score: top.score }),
+      });
+      const d = await r.json();
+      if (Array.isArray(d.steps) && d.steps.length > 0) setAiRoadmap(d.steps);
+    } catch { /* fall back to static */ }
+    finally { setRoadmapLoading(false); }
+  }
+
+  async function fetchAiPricing(data: Assessment, top: VisaScore) {
+    setPricingLoading(true);
+    try {
+      const r = await fetch(`${BASE}/api/ai/pricing`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        body: JSON.stringify({ targetCountry: data.targetCountry, visaName: top.visa.name, immigrationGoal: (data as any).immigrationGoal ?? '', nationality: data.nationality }),
+      });
+      const d = await r.json();
+      if (Array.isArray(d.items) && d.items.length > 0) {
+        setAiPricing(d.items);
+        if (d.total) setAiPricingTotal(d.total);
+      }
+    } catch { /* fall back to static */ }
+    finally { setPricingLoading(false); }
+  }
 
   useEffect(() => {
     const data = loadAssessment() as Assessment | null;
     if (data) {
       setAssessment(data);
       const scores = calculateScores(data);
-      setTopMatch(scores.topMatches[0] ?? null);
+      const top = scores.topMatches[0] ?? null;
+      setTopMatch(top);
+      if (top) {
+        fetchAiRoadmap(data, top);
+        fetchAiPricing(data, top);
+      }
     }
   }, []);
 
-  const milestones = topMatch
+  const milestones = aiRoadmap ?? (topMatch
     ? (MILESTONE_MAP[topMatch.visa.id] ?? MILESTONE_MAP.default)
-    : MILESTONE_MAP.default;
+    : MILESTONE_MAP.default);
 
   const docs = topMatch ? (DOC_MAP[topMatch.visa.id] ?? []) : [];
-  const pricing = topMatch ? (PRICING_MAP[topMatch.visa.id] ?? []) : [];
+  const pricing = aiPricing ?? (topMatch ? (PRICING_MAP[topMatch.visa.id] ?? []) : []);
 
   return (
     <div className="relative min-h-screen flex flex-col bg-[#f8f6ff]">
@@ -512,33 +556,57 @@ export default function RoadmapsPage() {
                 <h2 className="font-space font-bold text-xl mb-8 flex items-center gap-2">
                   <Icon icon="lucide:calendar" className="text-neon-pink" />
                   Application Timeline
+                  {aiRoadmap && !roadmapLoading && (
+                    <span className="ml-auto text-[10px] font-mono bg-indigo-bloom/8 text-indigo-bloom px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Icon icon="lucide:sparkles" className="text-[10px]" /> AI Personalised
+                    </span>
+                  )}
                 </h2>
-                <div className="relative">
-                  <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-neon-pink via-indigo-bloom to-indigo-bloom/10" />
-                  <div className="space-y-8">
-                    {milestones.map((m, i) => (
-                      <div key={i} className="flex gap-6 relative">
-                        <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center z-10 border-2 ${
-                          i === 0
-                            ? 'bg-neon-pink border-neon-pink shadow-[0_0_12px_rgba(244,34,114,0.4)]'
-                            : 'bg-white border-indigo-bloom/30'
-                        }`}>
-                          {i === 0
-                            ? <Icon icon="lucide:check" className="text-white text-xs" />
-                            : <span className="text-[10px] font-mono font-bold text-indigo-bloom">{i + 1}</span>
-                          }
-                        </div>
-                        <div className="flex-1 pb-2">
-                          <div className="flex items-center gap-3 mb-1">
-                            <span className="font-space font-bold text-base">{m.label}</span>
-                            <span className="text-[10px] font-mono uppercase tracking-widest text-neon-pink bg-neon-pink/10 px-2 py-0.5 rounded-full">{m.month}</span>
-                          </div>
-                          <p className="text-sm text-indigo-950/60">{m.detail}</p>
+                {roadmapLoading ? (
+                  <div className="space-y-8 animate-pulse">
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                      <div key={i} className="flex gap-6">
+                        <div className="w-8 h-8 rounded-full bg-indigo-bloom/10 flex-shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 bg-indigo-bloom/10 rounded w-1/3" />
+                          <div className="h-3 bg-indigo-bloom/6 rounded w-full" />
+                          <div className="h-3 bg-indigo-bloom/6 rounded w-4/5" />
                         </div>
                       </div>
                     ))}
+                    <div className="flex items-center gap-2 text-xs text-indigo-bloom/60 font-mono pt-2">
+                      <Icon icon="lucide:sparkles" className="text-neon-pink animate-pulse" />
+                      Generating your personalised roadmap…
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="relative">
+                    <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-neon-pink via-indigo-bloom to-indigo-bloom/10" />
+                    <div className="space-y-8">
+                      {milestones.map((m, i) => (
+                        <div key={i} className="flex gap-6 relative">
+                          <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center z-10 border-2 ${
+                            i === 0
+                              ? 'bg-neon-pink border-neon-pink shadow-[0_0_12px_rgba(244,34,114,0.4)]'
+                              : 'bg-white border-indigo-bloom/30'
+                          }`}>
+                            {i === 0
+                              ? <Icon icon="lucide:check" className="text-white text-xs" />
+                              : <span className="text-[10px] font-mono font-bold text-indigo-bloom">{i + 1}</span>
+                            }
+                          </div>
+                          <div className="flex-1 pb-2">
+                            <div className="flex items-center gap-3 mb-1">
+                              <span className="font-space font-bold text-base">{m.label}</span>
+                              <span className="text-[10px] font-mono uppercase tracking-widest text-neon-pink bg-neon-pink/10 px-2 py-0.5 rounded-full">{m.month}</span>
+                            </div>
+                            <p className="text-sm text-indigo-950/60">{m.detail}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Documents */}
@@ -562,23 +630,49 @@ export default function RoadmapsPage() {
               )}
 
               {/* Pricing breakdown */}
-              {pricing.length > 0 && (
+              {(pricingLoading || pricing.length > 0) && (
                 <div className="glass-card p-8">
                   <h2 className="font-space font-bold text-xl mb-6 flex items-center gap-2">
                     <Icon icon="lucide:wallet" className="text-neon-pink" />
                     Cost Breakdown
+                    {aiPricing && !pricingLoading && (
+                      <span className="ml-auto text-[10px] font-mono bg-indigo-bloom/8 text-indigo-bloom px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Icon icon="lucide:sparkles" className="text-[10px]" /> AI Generated
+                      </span>
+                    )}
                   </h2>
-                  <div className="space-y-2">
-                    {pricing.map((p, i) => (
-                      <div key={i} className="flex items-center justify-between py-2 border-b border-indigo-bloom/8 last:border-0">
-                        <span className="text-sm text-indigo-950/70">{p.item}</span>
-                        <span className="font-mono font-bold text-sm text-indigo-bloom bg-indigo-bloom/6 px-3 py-1 rounded-full">{p.cost}</span>
+                  {pricingLoading ? (
+                    <div className="space-y-3 animate-pulse">
+                      {[1, 2, 3, 4, 5, 6].map(i => (
+                        <div key={i} className="flex justify-between py-2 border-b border-indigo-bloom/8">
+                          <div className="h-3 bg-indigo-bloom/10 rounded w-1/2" />
+                          <div className="h-3 bg-indigo-bloom/10 rounded w-1/5" />
+                        </div>
+                      ))}
+                      <div className="flex items-center gap-2 text-xs text-indigo-bloom/60 font-mono pt-2">
+                        <Icon icon="lucide:sparkles" className="text-neon-pink animate-pulse" />
+                        Generating cost breakdown…
                       </div>
-                    ))}
-                    <div className="mt-3 pt-3 border-t border-indigo-bloom/20 text-xs text-indigo-950/40 italic">
-                      * Costs are estimates and subject to change. Always verify with official government sources.
                     </div>
-                  </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {pricing.map((p, i) => (
+                        <div key={i} className="flex items-center justify-between py-2 border-b border-indigo-bloom/8 last:border-0">
+                          <span className="text-sm text-indigo-950/70">{p.item}</span>
+                          <span className="font-mono font-bold text-sm text-indigo-bloom bg-indigo-bloom/6 px-3 py-1 rounded-full">{p.cost}</span>
+                        </div>
+                      ))}
+                      {aiPricingTotal && (
+                        <div className="flex items-center justify-between mt-4 p-4 rounded-2xl bg-gradient-to-r from-neon-pink/5 to-indigo-bloom/5 border border-neon-pink/20">
+                          <span className="text-sm font-bold text-indigo-bloom uppercase tracking-widest font-mono">Total Estimate</span>
+                          <span className="text-xl font-space font-bold text-neon-pink">{aiPricingTotal}</span>
+                        </div>
+                      )}
+                      <div className="mt-3 pt-3 border-t border-indigo-bloom/20 text-xs text-indigo-950/40 italic">
+                        * Costs are estimates and subject to change. Always verify with official government sources.
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -62,6 +62,170 @@ Respond ONLY with a valid JSON object (no markdown, no code fences, no extra tex
   }
 });
 
+router.post("/ai/questions", async (req, res) => {
+  try {
+    const { nationality, currentCountry, targetCountry, immigrationGoal } = req.body as {
+      nationality: string;
+      currentCountry: string;
+      targetCountry: string;
+      immigrationGoal: string;
+    };
+
+    const prompt = `You are an expert immigration consultant creating targeted eligibility questions.
+
+User profile:
+- Nationality: ${nationality}
+- Currently living in: ${currentCountry}
+- Target country: ${targetCountry}
+- Immigration goal: ${immigrationGoal}
+
+Generate exactly 2 highly specific questions for this ${targetCountry} ${immigrationGoal} immigration scenario.
+Focus on the most critical eligibility factors for this exact combination — e.g. sponsorship, degree recognition, language tests, salary thresholds, financial proof, sector, business plan.
+Each question must have exactly 4 distinct answer options covering the realistic range of situations.
+
+Respond ONLY with valid JSON (no markdown, no code fences, no extra text):
+{
+  "questions": [
+    {
+      "id": "ai_q1",
+      "question": "Specific question about a key eligibility factor?",
+      "options": ["Most favourable situation", "Partially meets requirement", "Working toward it", "Does not meet it yet"]
+    },
+    {
+      "id": "ai_q2",
+      "question": "Second specific question about another key factor?",
+      "options": ["Option A", "Option B", "Option C", "Option D"]
+    }
+  ]
+}`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: { maxOutputTokens: 1024 },
+    });
+
+    const text = response.text ?? "{}";
+    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+    res.json(parsed);
+  } catch (err) {
+    req.log.error({ err }, "AI questions error");
+    res.status(500).json({ error: "Failed to generate questions" });
+  }
+});
+
+router.post("/ai/roadmap", async (req, res) => {
+  try {
+    const { assessment, visaName, visaCountry, score } = req.body as {
+      assessment: Record<string, unknown>;
+      visaName: string;
+      visaCountry: string;
+      score: number;
+    };
+
+    const specificAnswers = assessment.specificAnswers
+      ? Object.entries(assessment.specificAnswers as Record<string, string>)
+          .map(([k, v]) => `  - ${k}: ${v}`)
+          .join("\n")
+      : "None provided";
+
+    const prompt = `You are an expert immigration consultant creating a personalized step-by-step roadmap.
+
+USER PROFILE:
+- Immigration goal: ${assessment.immigrationGoal ?? "Not specified"}
+- Nationality: ${assessment.nationality}
+- Currently living in: ${assessment.currentCountry}
+- Target country: ${assessment.targetCountry}
+- Age: ${assessment.age}
+- Education: ${assessment.degree}${assessment.fieldOfStudy ? ` in ${assessment.fieldOfStudy}` : ""}
+- Full-time work experience: ${assessment.workExperience} years
+- English proficiency: ${assessment.englishScore}
+- Target language level: ${assessment.targetLanguageLevel ?? "Not provided"}
+- Job offer status: ${assessment.jobOffer}
+- Country-specific answers:
+${specificAnswers}
+
+TOP VISA MATCH: ${visaName} (${visaCountry}) — ${score}% eligibility
+
+Create exactly 6 personalized roadmap steps for this specific user applying for ${visaName}.
+Make each step highly specific — reference their actual situation (their language level, job offer status, nationality, field of study, etc.).
+Each step needs a realistic time estimate.
+
+Respond ONLY with valid JSON (no markdown, no code fences, no extra text):
+{
+  "steps": [
+    {"month": "Month 1–2", "label": "Step Title", "detail": "Specific detail tailored to this user's exact profile and situation"},
+    {"month": "Month 2–4", "label": "Step Title", "detail": "..."},
+    {"month": "Month 4–6", "label": "Step Title", "detail": "..."},
+    {"month": "Month 6–9", "label": "Step Title", "detail": "..."},
+    {"month": "Month 9–12", "label": "Step Title", "detail": "..."},
+    {"month": "Year 2+", "label": "Step Title", "detail": "..."}
+  ]
+}`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: { maxOutputTokens: 2048 },
+    });
+
+    const text = response.text ?? "{}";
+    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+    res.json(parsed);
+  } catch (err) {
+    req.log.error({ err }, "AI roadmap error");
+    res.status(500).json({ error: "Failed to generate roadmap" });
+  }
+});
+
+router.post("/ai/pricing", async (req, res) => {
+  try {
+    const { targetCountry, visaName, immigrationGoal, nationality } = req.body as {
+      targetCountry: string;
+      visaName: string;
+      immigrationGoal: string;
+      nationality: string;
+    };
+
+    const prompt = `You are an expert immigration consultant providing accurate cost estimates.
+
+User needs: ${visaName} for ${targetCountry}
+Immigration goal: ${immigrationGoal}
+Nationality: ${nationality}
+
+Generate a realistic, current cost breakdown for ${visaName} with 6-8 line items.
+Include: government/visa fees, mandatory language tests, credential/skills assessment, medical examination, biometrics, any mandatory insurance.
+Note which items are typically employer-paid if applicable.
+Use the correct local currency for ${targetCountry}.
+
+Respond ONLY with valid JSON (no markdown, no code fences, no extra text):
+{
+  "items": [
+    {"item": "Specific fee name", "cost": "Amount in correct currency"},
+    {"item": "...", "cost": "..."}
+  ],
+  "total": "~Estimated total (e.g. ~CAD $3,500)",
+  "note": "One concise sentence about employer-covered costs or important variables."
+}`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: { maxOutputTokens: 1024 },
+    });
+
+    const text = response.text ?? "{}";
+    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+    res.json(parsed);
+  } catch (err) {
+    req.log.error({ err }, "AI pricing error");
+    res.status(500).json({ error: "Failed to generate pricing" });
+  }
+});
+
 router.post("/ai/chat", async (req, res) => {
   try {
     const { message, assessment, visaName, visaCountry, score } = req.body as {
