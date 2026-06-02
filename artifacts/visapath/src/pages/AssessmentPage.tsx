@@ -33,14 +33,10 @@ function OptionBtn({ label, isSelected, onSelect }: OptionBtnProps) {
         isSelected ? 'selected' : 'border-indigo-bloom/20 hover:border-indigo-bloom/50 hover:bg-white/70'
       }`}
     >
-      <span className={`font-medium ${isSelected ? 'text-neon-pink' : 'text-[#1a0f2e]'}`}>
-        {label}
-      </span>
-      <div
-        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-          isSelected ? 'border-neon-pink bg-neon-pink scale-110' : 'border-indigo-bloom/30'
-        }`}
-      >
+      <span className={`font-medium ${isSelected ? 'text-neon-pink' : 'text-[#1a0f2e]'}`}>{label}</span>
+      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+        isSelected ? 'border-neon-pink bg-neon-pink scale-110' : 'border-indigo-bloom/30'
+      }`}>
         {isSelected && <Icon icon="lucide:check" className="text-white text-xs" />}
       </div>
     </button>
@@ -62,19 +58,33 @@ function TravelBtn({ region, isSelected, onToggle }: TravelBtnProps) {
         isSelected ? 'selected' : 'border-indigo-bloom/20 hover:border-indigo-bloom/50 hover:bg-white/70'
       }`}
     >
-      <span className={`font-medium ${isSelected ? 'text-neon-pink' : 'text-[#1a0f2e]'}`}>
-        {region}
-      </span>
-      <div
-        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-          isSelected ? 'border-neon-pink bg-neon-pink scale-110' : 'border-indigo-bloom/30'
-        }`}
-      >
+      <span className={`font-medium ${isSelected ? 'text-neon-pink' : 'text-[#1a0f2e]'}`}>{region}</span>
+      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+        isSelected ? 'border-neon-pink bg-neon-pink scale-110' : 'border-indigo-bloom/30'
+      }`}>
         {isSelected && <Icon icon="lucide:check" className="text-white text-xs" />}
       </div>
     </button>
   );
 }
+
+const DESTINATION_COUNTRIES = [
+  { label: '🇨🇦 Canada',        value: 'Canada' },
+  { label: '🇩🇪 Germany',       value: 'Germany' },
+  { label: '🇺🇸 USA',           value: 'USA' },
+  { label: '🇬🇧 UK',            value: 'UK' },
+  { label: '🇦🇺 Australia',     value: 'Australia' },
+  { label: '🇯🇵 Japan',         value: 'Japan' },
+  { label: '🇸🇬 Singapore',     value: 'Singapore' },
+  { label: '🇳🇿 New Zealand',   value: 'New Zealand' },
+  { label: '🇮🇪 Ireland',       value: 'Ireland' },
+  { label: '🇳🇱 Netherlands',   value: 'Netherlands' },
+  { label: '🇸🇪 Sweden',        value: 'Sweden' },
+  { label: '🇰🇷 South Korea',   value: 'South Korea' },
+  { label: '🇫🇷 France',        value: 'France' },
+  { label: '🇳🇴 Norway',        value: 'Norway' },
+  { label: '🇨🇭 Switzerland',   value: 'Switzerland' },
+];
 
 export default function AssessmentPage() {
   const [, navigate] = useLocation();
@@ -172,7 +182,7 @@ export default function AssessmentPage() {
           </div>
         </div>
 
-        {/* Step cards */}
+        {/* Step card */}
         <div className="w-full max-w-2xl glass-card p-10 relative overflow-hidden" ref={containerRef}>
 
           {currentStep === 1 && (
@@ -183,12 +193,14 @@ export default function AssessmentPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
-                  { label: '🇮🇳 India', value: 'India' },
-                  { label: '🇨🇳 China', value: 'China' },
-                  { label: '🇳🇬 Nigeria', value: 'Nigeria' },
+                  { label: '🇮🇳 India',       value: 'India' },
+                  { label: '🇨🇳 China',       value: 'China' },
+                  { label: '🇳🇬 Nigeria',     value: 'Nigeria' },
                   { label: '🇵🇭 Philippines', value: 'Philippines' },
-                  { label: '🇲🇽 Mexico', value: 'Mexico' },
-                  { label: '🌐 Other', value: 'Other' },
+                  { label: '🇲🇽 Mexico',      value: 'Mexico' },
+                  { label: '🇧🇷 Brazil',      value: 'Brazil' },
+                  { label: '🇵🇰 Pakistan',    value: 'Pakistan' },
+                  { label: '🌐 Other',         value: 'Other' },
                 ].map(opt => (
                   <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.nationality === opt.value}
@@ -202,16 +214,16 @@ export default function AssessmentPage() {
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="space-y-2">
                 <h1 className="text-4xl font-space font-bold">Where do you live currently?</h1>
-                <p className="text-[#4b3b6b] text-lg">Current residency affects processing centers and wait times.</p>
+                <p className="text-[#4b3b6b] text-lg">Current residency affects processing centres and wait times.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
                   { label: '🇺🇸 United States', value: 'USA' },
                   { label: '🇬🇧 United Kingdom', value: 'UK' },
-                  { label: '🇮🇳 India', value: 'India' },
-                  { label: '🇨🇦 Canada', value: 'Canada' },
-                  { label: '🇦🇺 Australia', value: 'Australia' },
-                  { label: '🌐 Other', value: 'Other' },
+                  { label: '🇮🇳 India',           value: 'India' },
+                  { label: '🇨🇦 Canada',          value: 'Canada' },
+                  { label: '🇦🇺 Australia',       value: 'Australia' },
+                  { label: '🌐 Other',             value: 'Other' },
                 ].map(opt => (
                   <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.currentCountry === opt.value}
@@ -224,18 +236,11 @@ export default function AssessmentPage() {
           {currentStep === 3 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="space-y-2">
-                <h1 className="text-4xl font-space font-bold">What is your target destination?</h1>
-                <p className="text-[#4b3b6b] text-lg">Where are you looking to immigrate to?</p>
+                <h1 className="text-4xl font-space font-bold">Where do you want to immigrate?</h1>
+                <p className="text-[#4b3b6b] text-lg">Your target country heavily influences which visa pathways are recommended.</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {[
-                  { label: '🇨🇦 Canada', value: 'Canada' },
-                  { label: '🇩🇪 Germany', value: 'Germany' },
-                  { label: '🇺🇸 USA', value: 'USA' },
-                  { label: '🇬🇧 UK', value: 'UK' },
-                  { label: '🇦🇺 Australia', value: 'Australia' },
-                  { label: '🇯🇵 Japan', value: 'Japan' },
-                ].map(opt => (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {DESTINATION_COUNTRIES.map(opt => (
                   <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.targetCountry === opt.value}
                     onSelect={() => setField('targetCountry', opt.value)} />
@@ -253,9 +258,9 @@ export default function AssessmentPage() {
               <div className="flex flex-col gap-3">
                 {[
                   { label: 'High School / Secondary', value: 'High School' },
-                  { label: "Bachelor's Degree", value: "Bachelor's" },
-                  { label: "Master's Degree", value: "Master's" },
-                  { label: 'Doctorate / PhD', value: 'PhD' },
+                  { label: "Bachelor's Degree",        value: "Bachelor's" },
+                  { label: "Master's Degree",           value: "Master's" },
+                  { label: 'Doctorate / PhD',          value: 'PhD' },
                 ].map(opt => (
                   <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.degree === opt.value}
@@ -282,6 +287,9 @@ export default function AssessmentPage() {
                   onChange={e => setAnswers(prev => ({ ...prev, workExperience: parseInt(e.target.value) }))}
                   className="w-full accent-neon-pink"
                 />
+                <div className="flex justify-between text-xs font-mono text-indigo-bloom/40 mt-1">
+                  <span>0 yrs</span><span>5</span><span>10</span><span>15</span><span>20 yrs</span>
+                </div>
               </div>
             </div>
           )}
@@ -294,10 +302,10 @@ export default function AssessmentPage() {
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { label: 'Basic (A1-A2)', value: 'Basic' },
-                  { label: 'Intermediate (B1-B2)', value: 'Intermediate' },
-                  { label: 'Advanced (C1-C2)', value: 'Advanced' },
-                  { label: 'Native / Fluent', value: 'Native/Fluent' },
+                  { label: 'Basic (A1–A2)',       value: 'Basic' },
+                  { label: 'Intermediate (B1–B2)', value: 'Intermediate' },
+                  { label: 'Advanced (C1–C2)',     value: 'Advanced' },
+                  { label: 'Native / Fluent',     value: 'Native/Fluent' },
                 ].map(opt => (
                   <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.englishScore === opt.value}
@@ -311,13 +319,13 @@ export default function AssessmentPage() {
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="space-y-2">
                 <h1 className="text-4xl font-space font-bold">Do you have a job offer?</h1>
-                <p className="text-[#4b3b6b] text-lg">A valid job offer significantly increases chances.</p>
+                <p className="text-[#4b3b6b] text-lg">A confirmed offer from a local employer significantly increases your chances for sponsored visas.</p>
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  { label: 'Yes, in target country', value: 'Yes - In Target Country' },
-                  { label: 'Yes, remote', value: 'Yes - Remote' },
-                  { label: 'No job offer yet', value: 'No' },
+                  { label: 'Yes — in my target country', value: 'Yes - In Target Country' },
+                  { label: 'Yes — remote / international', value: 'Yes - Remote' },
+                  { label: 'No job offer yet',            value: 'No' },
                 ].map(opt => (
                   <OptionBtn key={opt.value} label={opt.label} value={opt.value}
                     isSelected={answers.jobOffer === opt.value}
