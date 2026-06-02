@@ -53,17 +53,11 @@ export default function NavBar({ activeItem = null }: NavBarProps) {
           </button>
         </div>
 
-        <div className="ml-4 flex items-center gap-3 z-10">
+        <div className="ml-2 flex items-center gap-2 z-10">
           <span className="flex h-2 w-2 relative">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-pink"></span>
           </span>
-          <Link
-            href="/assessment"
-            className="text-xs font-mono tracking-widest uppercase opacity-80 hover:opacity-100 hover:text-neon-pink active:scale-95 transition-all"
-          >
-            Sign In
-          </Link>
         </div>
       </nav>
     </header>

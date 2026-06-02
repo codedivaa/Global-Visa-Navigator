@@ -168,7 +168,7 @@ export default function LandingPage() {
                 <p className="text-[10px] font-mono text-neon-pink uppercase tracking-widest">Express Entry</p>
                 <div className="flex justify-between items-end">
                   <span className="text-sm font-space font-bold">Canada PR</span>
-                  <span className="text-xs text-green-400 font-mono">82%</span>
+                  <span className="text-xs text-green-400 font-mono">Sample</span>
                 </div>
                 <div className="w-full h-1 bg-indigo-bloom/5 rounded-full overflow-hidden">
                   <div className="h-full bg-green-500 w-[82%]"></div>
@@ -186,7 +186,7 @@ export default function LandingPage() {
                 <p className="text-[10px] font-mono text-indigo-400 uppercase tracking-widest">Opportunity Card</p>
                 <div className="flex justify-between items-end">
                   <span className="text-sm font-space font-bold">Germany Job</span>
-                  <span className="text-xs text-indigo-400 font-mono">75%</span>
+                  <span className="text-xs text-indigo-400 font-mono">Sample</span>
                 </div>
                 <div className="w-full h-1 bg-indigo-bloom/5 rounded-full overflow-hidden">
                   <div className="h-full bg-indigo-500 w-[75%]"></div>
@@ -196,7 +196,7 @@ export default function LandingPage() {
 
             <div className="glass-card tilt-card absolute top-0 right-10 w-64 p-8 bounce-float z-30 shadow-[0_30px_60px_-15px_rgba(6,182,212,0.3)]" style={{ animationDelay: '-1.5s' }}>
               <div className="flex justify-between items-start mb-8">
-                <span className="text-xs font-mono text-neon-pink tracking-tighter">PROBABILITY SCORE</span>
+                <span className="text-xs font-mono text-neon-pink tracking-tighter">ELIGIBILITY ANALYSIS</span>
                 <Icon icon="lucide:activity" className="text-neon-pink text-xl animate-pulse" />
               </div>
               <div className="relative flex flex-col items-center">
@@ -205,12 +205,12 @@ export default function LandingPage() {
                   <circle cx="80" cy="80" r="72" stroke="currentColor" strokeWidth="10" fill="transparent" className="text-neon-pink" strokeDasharray="452" strokeDashoffset="58" strokeLinecap="round" style={{ filter: 'drop-shadow(0 0 8px #06B6D4)' }} />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl font-space font-bold tracking-tight">87%</span>
-                  <span className="text-[10px] text-neon-pink uppercase tracking-widest mt-1">High Priority</span>
+                  <span className="text-4xl font-space font-bold tracking-tight">—</span>
+                  <span className="text-[10px] text-neon-pink uppercase tracking-widest mt-1">Your Profile</span>
                 </div>
               </div>
               <div className="mt-6 text-xs text-center text-indigo-950/50 leading-relaxed">
-                Matches Skilling Visa Type-A & Skilled Worker criteria.
+                Complete the assessment to see your personalized eligibility score.
               </div>
             </div>
 
@@ -238,8 +238,8 @@ export default function LandingPage() {
                     <div className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></div>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-semibold text-indigo-400">Document Intelligence</span>
-                    <span className="text-[11px] text-indigo-900/40 italic font-mono">SCANNING... 64%</span>
+                    <span className="text-sm font-semibold text-indigo-400">Required Documents</span>
+                    <span className="text-[11px] text-indigo-900/40 italic font-mono">NEXT STEP</span>
                   </div>
                 </div>
               </div>
@@ -263,7 +263,7 @@ export default function LandingPage() {
                     <Icon icon="lucide:cpu" className="text-indigo-bloom text-xs" />
                   </div>
                   <div className="bg-white rounded-2xl rounded-tl-none p-3 text-sm text-indigo-950 shadow-sm">
-                    Based on your travel history, the US O-1A visa has a 88% approval probability if we submit before Q3. Shall we review the required documentation?
+                    Based on your profile, Canada Express Entry looks like a strong pathway. Want me to walk you through the key requirements and missing documents?
                   </div>
                 </div>
                 <div className="flex gap-3 flex-row-reverse">
@@ -307,12 +307,13 @@ export default function LandingPage() {
               { country: 'United Kingdom', visa: 'Skilled Worker', img: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&q=80&w=800', score: 92, time: '3-5 months' },
               { country: 'Japan', visa: 'Highly Skilled Prof.', img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800', score: 78, time: '2-4 months' },
               { country: 'Australia', visa: 'Subclass 189', img: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?auto=format&fit=crop&q=80&w=800', score: 88, time: '8-12 months' },
+
             ].map((item, i) => (
               <Link key={i} href="/assessment" className="glass-card min-w-[320px] h-[400px] rounded-[32px] overflow-hidden group relative snap-center cursor-pointer active:scale-[0.97] transition-transform">
                 <img src={item.img} className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" alt={item.country} />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a0f2e] via-[#1a0f2e]/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
                 <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/30 text-white font-mono text-sm flex items-center gap-2">
-                  <Icon icon="lucide:activity" className="text-neon-pink" /> {item.score}% Match
+                  <Icon icon="lucide:activity" className="text-neon-pink" /> Avg. {item.score}%
                 </div>
                 <div className="absolute bottom-0 left-0 w-full p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform">
                   <p className="text-neon-pink font-mono text-xs uppercase tracking-widest mb-2">{item.visa}</p>
@@ -328,7 +329,7 @@ export default function LandingPage() {
           {/* How it works sub-section */}
           <div className="max-w-7xl mx-auto px-6 mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: 'lucide:clipboard-list', title: 'Complete Assessment', desc: 'Answer 8 quick questions about your background, education, and immigration goals.' },
+              { icon: 'lucide:clipboard-list', title: 'Complete Assessment', desc: 'Answer 10 quick questions about your background, education, and immigration goals.' },
               { icon: 'lucide:bar-chart-2', title: 'Get Scored Instantly', desc: 'Our AI scores your eligibility across 7 visa programs using real government criteria.' },
               { icon: 'lucide:map', title: 'Follow Your Roadmap', desc: 'Get a step-by-step timeline with documents, milestones, and AI guidance.' },
             ].map((item, i) => (
