@@ -1,0 +1,32 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "kIpI7dVSmUWCaw8MqG-6A"
+uri = "file://artifacts/visapath/src/assets/bg-education.png"
+type = "image"
+title = "education studying 3d illustration"
+
+[[generated]]
+id = "uJxq1s1Hvl-lV_tBI-ZyK"
+uri = "file://artifacts/visapath/src/assets/bg-ai.png"
+type = "image"
+title = "ai neural network 3d illustration"
+
+[[generated]]
+id = "F4S14sW3LKBB9EPJIhXVg"
+uri = "file://artifacts/visapath/src/assets/bg-innovation.png"
+type = "image"
+title = "innovation lightbulb 3d illustration"
+
+[[generated]]
+id = "TCncRcV_IbYyiV4-BZqEJ"
+uri = "file://artifacts/visapath/src/assets/bg-career.png"
+type = "image"
+title = "career growth 3d illustration"
+
+[[generated]]
+id = "9WFY7qixpuVk85uOC1MCK"
+uri = "file://artifacts/visapath/src/assets/bg-globe.png"
+type = "image"
+title = "global mobility globe 3d illustration"

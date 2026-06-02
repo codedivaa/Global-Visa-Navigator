@@ -1,84 +1,61 @@
-import { Icon } from '@iconify/react';
+import bgEducation from '@/assets/bg-education.png';
+import bgAi from '@/assets/bg-ai.png';
+import bgInnovation from '@/assets/bg-innovation.png';
+import bgCareer from '@/assets/bg-career.png';
+import bgGlobe from '@/assets/bg-globe.png';
 
-const FLOAT_CARDS = [
+const BG_IMAGES = [
   {
-    id: 'study',
-    icon: 'lucide:graduation-cap',
-    label: 'Education',
-    iconColor: '#8b5cf6',
-    bg: 'rgba(139,92,246,0.09)',
-    border: 'rgba(139,92,246,0.20)',
-    glow: 'rgba(139,92,246,0.12)',
-    top: '22%', left: '3%',
-    anim: 'floatCard1', delay: '0s', dur: '16s',
-    barW: 32,
-  },
-  {
-    id: 'career',
-    icon: 'lucide:briefcase',
-    label: 'Career',
-    iconColor: '#f42272',
-    bg: 'rgba(244,34,114,0.08)',
-    border: 'rgba(244,34,114,0.18)',
-    glow: 'rgba(244,34,114,0.10)',
-    top: '60%', left: '2%',
-    anim: 'floatCard2', delay: '-5s', dur: '20s',
-    barW: 28,
+    id: 'education',
+    src: bgEducation,
+    size: 200,
+    top: '-2%', left: '-3%',
+    anim: 'floatCard1', delay: '0s', dur: '20s',
+    opacity: 0.13,
+    hue: 270,
   },
   {
     id: 'innovation',
-    icon: 'lucide:lightbulb',
-    label: 'Innovation',
-    iconColor: '#f59e0b',
-    bg: 'rgba(245,158,11,0.08)',
-    border: 'rgba(245,158,11,0.20)',
-    glow: 'rgba(245,158,11,0.10)',
-    top: '13%', right: '3%',
-    anim: 'floatCard3', delay: '-3s', dur: '18s',
-    barW: 36,
-  },
-  {
-    id: 'tech',
-    icon: 'lucide:code-2',
-    label: 'Technology',
-    iconColor: '#06b6d4',
-    bg: 'rgba(6,182,212,0.08)',
-    border: 'rgba(6,182,212,0.20)',
-    glow: 'rgba(6,182,212,0.12)',
-    top: '70%', right: '3%',
-    anim: 'floatCard4', delay: '-8s', dur: '22s',
-    barW: 34,
+    src: bgInnovation,
+    size: 190,
+    top: '-4%', right: '-2%',
+    anim: 'floatCard3', delay: '-4s', dur: '18s',
+    opacity: 0.12,
+    hue: 300,
   },
   {
     id: 'ai',
-    icon: 'lucide:cpu',
-    label: 'AI & Learning',
-    iconColor: '#10b981',
-    bg: 'rgba(16,185,129,0.08)',
-    border: 'rgba(16,185,129,0.18)',
-    glow: 'rgba(16,185,129,0.10)',
-    top: '40%', right: '2%',
-    anim: 'floatCard5', delay: '-12s', dur: '24s',
-    barW: 30,
+    src: bgAi,
+    size: 210,
+    top: '38%', right: '-4%',
+    anim: 'floatCard5', delay: '-10s', dur: '22s',
+    opacity: 0.13,
+    hue: 200,
+  },
+  {
+    id: 'career',
+    src: bgCareer,
+    size: 185,
+    top: '55%', left: '-4%',
+    anim: 'floatCard2', delay: '-6s', dur: '24s',
+    opacity: 0.11,
+    hue: 320,
   },
   {
     id: 'globe',
-    icon: 'lucide:globe',
-    label: 'Global Mobility',
-    iconColor: '#601b9d',
-    bg: 'rgba(96,27,157,0.08)',
-    border: 'rgba(96,27,157,0.18)',
-    glow: 'rgba(96,27,157,0.10)',
-    top: '82%', left: '42%',
-    anim: 'floatCard1', delay: '-9s', dur: '26s',
-    barW: 40,
+    src: bgGlobe,
+    size: 195,
+    bottom: '-4%', right: '12%',
+    anim: 'floatCard4', delay: '-14s', dur: '26s',
+    opacity: 0.12,
+    hue: 160,
   },
 ];
 
 export default function AnimatedBackground() {
   return (
     <>
-      {/* Original blob layer */}
+      {/* Blob gooey layer */}
       <div className="gooey-wrapper">
         <div className="gradients-container">
           <div className="blob b1" />
@@ -127,67 +104,40 @@ export default function AnimatedBackground() {
         ))}
       </div>
 
-      {/* 3D floating icon cards — z-[15] so they layer above page content, pointer-events:none */}
-      <div
-        className="fixed inset-0 z-[15] pointer-events-none"
-        style={{ perspective: '1200px', perspectiveOrigin: '50% 40%' }}
-      >
-        {FLOAT_CARDS.map(card => (
+      {/* 3D floating background illustrations — very low opacity, pushed to edges */}
+      <div className="fixed inset-0 z-[5] pointer-events-none" style={{ perspective: '1400px' }}>
+        {BG_IMAGES.map(img => (
           <div
-            key={card.id}
+            key={img.id}
             className="float-card-3d"
             style={{
               position: 'absolute',
-              top: card.top,
-              left: (card as { left?: string }).left,
-              right: (card as { right?: string }).right,
-              animationName: card.anim,
-              animationDelay: card.delay,
-              animationDuration: card.dur,
+              top: img.top,
+              left: (img as { left?: string }).left,
+              right: (img as { right?: string }).right,
+              bottom: (img as { bottom?: string }).bottom,
+              width: img.size,
+              height: img.size,
+              animationName: img.anim,
+              animationDelay: img.delay,
+              animationDuration: img.dur,
               animationTimingFunction: 'ease-in-out',
               animationIterationCount: 'infinite',
             }}
           >
-            <div
+            <img
+              src={img.src}
+              alt=""
+              draggable={false}
               style={{
-                background: card.bg,
-                border: `1px solid ${card.border}`,
-                boxShadow: `0 8px 28px ${card.glow}, inset 0 1px 0 rgba(255,255,255,0.25)`,
-                backdropFilter: 'blur(14px)',
-                WebkitBackdropFilter: 'blur(14px)',
-                borderRadius: '14px',
-                padding: '10px 14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                minWidth: '138px',
-                opacity: 0.82,
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                opacity: img.opacity,
+                filter: `blur(1.5px) hue-rotate(${img.hue}deg) saturate(1.4) brightness(0.95)`,
+                userSelect: 'none',
               }}
-            >
-              <div style={{
-                width: 34, height: 34, borderRadius: '10px', flexShrink: 0,
-                background: `${card.iconColor}18`,
-                border: `1px solid ${card.iconColor}35`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: `0 0 10px ${card.iconColor}20`,
-              }}>
-                <Icon icon={card.icon} style={{ color: card.iconColor, fontSize: 17 }} />
-              </div>
-              <div>
-                <div style={{
-                  fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
-                  color: card.iconColor, opacity: 0.9,
-                  textTransform: 'uppercase', letterSpacing: '0.07em',
-                  fontWeight: 600, whiteSpace: 'nowrap',
-                }}>
-                  {card.label}
-                </div>
-                <div style={{
-                  marginTop: 4, width: card.barW, height: 2, borderRadius: 2,
-                  background: `linear-gradient(90deg, ${card.iconColor}70, ${card.iconColor}18)`,
-                }} />
-              </div>
-            </div>
+            />
           </div>
         ))}
       </div>
