@@ -13,25 +13,37 @@ router.post("/ai/analyze", async (req, res) => {
       score: number;
     };
 
-    const prompt = `You are an expert immigration advisor. A user has completed a visa eligibility assessment and their top visa match is "${visaName}" (${visaCountry}) with a ${score}% eligibility score.
+    const specificAnswers = assessment.specificAnswers
+      ? Object.entries(assessment.specificAnswers as Record<string, string>)
+          .map(([k, v]) => `  - ${k}: ${v}`)
+          .join("\n")
+      : "None provided";
 
-User profile:
+    const prompt = `You are an expert immigration consultant who has helped thousands of people obtain visas worldwide.
+
+A user's top visa match is: "${visaName}" (${visaCountry}) — ${score}% eligibility.
+
+COMPLETE USER PROFILE:
+- Immigration goal: ${assessment.immigrationGoal ?? "Not specified"}
 - Nationality: ${assessment.nationality}
-- Current country: ${assessment.currentCountry}
+- Currently living in: ${assessment.currentCountry}
 - Target country: ${assessment.targetCountry}
 - Age: ${assessment.age}
-- Education: ${assessment.degree}
-- Work experience: ${assessment.workExperience} years
+- Education: ${assessment.degree}${assessment.fieldOfStudy ? ` in ${assessment.fieldOfStudy}` : ""}
+- Full-time work experience: ${assessment.workExperience} years
 - English proficiency: ${assessment.englishScore}
-- Job offer: ${assessment.jobOffer}
-- Travel history: ${Array.isArray(assessment.travelHistory) ? (assessment.travelHistory as string[]).join(', ') || 'None' : 'None'}
+- Target language level: ${assessment.targetLanguageLevel ?? "Not provided"}
+- Job offer status: ${assessment.jobOffer}
+- Travel history: ${Array.isArray(assessment.travelHistory) ? (assessment.travelHistory as string[]).join(", ") || "None" : "None"}
+- Country-specific answers:
+${specificAnswers}
 
-Respond ONLY with a valid JSON object (no markdown, no code fences) with exactly these four fields:
+Respond ONLY with a valid JSON object (no markdown, no code fences, no extra text) with exactly these four fields:
 {
-  "qualification": "2-3 sentences explaining why this person qualifies or how strong their profile is for this visa",
-  "risks": "2-3 sentences describing the main risks or weaknesses in their application",
-  "documents": "A comma-separated list of the 5-7 most important documents they need for this specific visa",
-  "nextSteps": "3-4 concrete, numbered action steps they should take now to move forward"
+  "qualification": "3-4 sentences: why this person qualifies (or doesn't), citing their specific profile factors for ${visaName}",
+  "risks": "3-4 sentences: main risks, gaps, or red flags in their application for ${visaName}",
+  "documents": "8-10 comma-separated most important documents for ${visaName} from ${visaCountry} specifically",
+  "nextSteps": "4-5 numbered concrete action steps they should take NOW to move toward ${visaName}, based on their specific situation"
 }`;
 
     const response = await ai.models.generateContent({
@@ -60,9 +72,39 @@ router.post("/ai/chat", async (req, res) => {
       score?: number;
     };
 
-    const systemContext = assessment
-      ? `You are VisaPath AI, an expert immigration intelligence advisor. The user has completed an eligibility assessment. Their top visa match is "${visaName}" (${visaCountry}) with ${score}% eligibility. Their profile: ${assessment.degree} degree, ${assessment.workExperience} years experience, ${assessment.englishScore} English, age ${assessment.age}, job offer: ${assessment.jobOffer}. Provide specific, actionable advice in 2-4 sentences. Be direct and concise.`
-      : "You are VisaPath AI, an expert immigration intelligence advisor. The user has not yet completed their assessment. Provide helpful immigration guidance in 2-4 sentences. Be direct and concise.";
+    let systemContext: string;
+
+    if (assessment) {
+      const specificAnswers = assessment.specificAnswers
+        ? Object.entries(assessment.specificAnswers as Record<string, string>)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(", ")
+        : "none";
+
+      systemContext = `You are VisaPath AI — an expert immigration intelligence advisor with deep knowledge of global visa systems.
+
+USER PROFILE:
+- Goal: ${assessment.immigrationGoal ?? "Not specified"} immigration
+- From: ${assessment.nationality}, currently in ${assessment.currentCountry}
+- Target: ${assessment.targetCountry}
+- Age: ${assessment.age} | Education: ${assessment.degree}${assessment.fieldOfStudy ? ` (${assessment.fieldOfStudy})` : ""}
+- Experience: ${assessment.workExperience} years full-time professional
+- English: ${assessment.englishScore} | Target language: ${assessment.targetLanguageLevel ?? "not provided"}
+- Job offer: ${assessment.jobOffer}
+- Country-specific answers: ${specificAnswers}
+- Top visa match: "${visaName}" (${visaCountry}) — ${score}% eligibility
+
+INSTRUCTIONS:
+- Provide specific, actionable advice directly relevant to this user's exact profile
+- Reference their nationality, target country, and specific circumstances
+- For fees/costs, give real current figures in the local currency
+- For timelines, give realistic ranges based on the current processing environment
+- When asked about requirements, cite the specific version for their nationality
+- Be direct, precise, and helpful — like a real immigration consultant they're paying for
+- Keep responses to 3-5 sentences unless a longer explanation is genuinely needed`;
+    } else {
+      systemContext = `You are VisaPath AI — an expert immigration intelligence advisor. The user has not yet completed their assessment. Provide helpful, specific immigration guidance. Suggest they complete the assessment for personalized advice. Keep responses to 3-4 sentences.`;
+    }
 
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
@@ -72,7 +114,14 @@ router.post("/ai/chat", async (req, res) => {
       model: "gemini-2.5-flash",
       contents: [
         { role: "user", parts: [{ text: systemContext }] },
-        { role: "model", parts: [{ text: "Understood. I'm ready to help with specific immigration guidance." }] },
+        {
+          role: "model",
+          parts: [
+            {
+              text: "Understood. I have your complete profile and I'm ready to provide specific, actionable immigration guidance.",
+            },
+          ],
+        },
         { role: "user", parts: [{ text: message }] },
       ],
       config: { maxOutputTokens: 8192 },

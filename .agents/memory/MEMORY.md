@@ -1,0 +1,1 @@
+- [VisaPath AI architecture](visapath-arch.md) — 10-step assessment, world countries list, scoring with language penalties, country-specific Q banks

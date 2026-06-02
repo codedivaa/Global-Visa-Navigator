@@ -34,7 +34,6 @@ export default function AdvisorPage() {
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,14 +49,14 @@ export default function AdvisorPage() {
       } else {
         setMessages([{
           role: 'ai',
-          content: 'Welcome to VisaPath AI. I have analyzed your profile but could not find a top visa match. Please retake the assessment with more details.',
+          content: 'Welcome to VisaPath AI. I have analysed your profile but could not find a strong visa match. Please retake the assessment with more details about your target country and employment situation.',
           time: formatTime(),
         }]);
       }
     } else {
       setMessages([{
         role: 'ai',
-        content: 'Welcome to VisaPath AI — your personal immigration intelligence advisor. Complete the assessment first so I can provide personalized guidance based on your profile. What would you like to know about global visa programs?',
+        content: 'Welcome to VisaPath AI — your personal immigration intelligence advisor.\n\nComplete the assessment first so I can provide personalised guidance based on your specific profile. What would you like to know about global visa programs?',
         time: formatTime(),
       }]);
     }
@@ -73,7 +72,7 @@ export default function AdvisorPage() {
     setAnalysisLoading(true);
     setMessages([{
       role: 'ai',
-      content: `Analyzing your profile for the **${tv.name}** (${tv.country})…`,
+      content: `Analysing your profile for the **${tv.name}** (${tv.country})…`,
       time: formatTime(),
     }]);
 
@@ -94,18 +93,18 @@ export default function AdvisorPage() {
       const result: AnalysisData = await res.json();
       setAnalysis(result);
 
-      const summary = `I have analyzed your profile for the **${tv.name}** (${tv.country}) — ${tv.score}% match.\n\n` +
+      const summary = `I have analysed your complete profile for the **${tv.name}** (${tv.country}) — ${tv.score}% eligibility match.\n\n` +
         `**Why you qualify:** ${result.qualification}\n\n` +
-        `**Key risks:** ${result.risks}\n\n` +
-        `**Documents needed:** ${result.documents}\n\n` +
-        `**Next steps:** ${result.nextSteps}\n\n` +
-        `Feel free to ask me anything about fees, processing times, requirements, or alternative pathways.`;
+        `**Key risks to address:** ${result.risks}\n\n` +
+        `**Priority documents:** ${result.documents}\n\n` +
+        `**Your next steps:** ${result.nextSteps}\n\n` +
+        `Ask me anything — processing times, fees, language requirements, alternative pathways, or how to improve your score.`;
 
       setMessages([{ role: 'ai', content: summary, time: formatTime() }]);
     } catch {
       setMessages([{
         role: 'ai',
-        content: `I have reviewed your profile for the **${tv.name}** (${tv.country}) with a ${tv.score}% eligibility score. Ask me about fees, processing times, requirements, or alternative pathways.`,
+        content: `I have reviewed your profile for the **${tv.name}** (${tv.country}) with a ${tv.score}% eligibility score.\n\nAsk me about fees, processing times, language requirements, or alternative pathways.`,
         time: formatTime(),
       }]);
     } finally {
@@ -193,6 +192,30 @@ export default function AdvisorPage() {
       .replace(/\n/g, '<br/>');
   }
 
+  const extendedAssessment = assessment as (Assessment & { immigrationGoal?: string; fieldOfStudy?: string; targetLanguageLevel?: string }) | null;
+
+  const profileRows = extendedAssessment ? [
+    { label: 'Goal', value: extendedAssessment.immigrationGoal || '—' },
+    { label: 'Nationality', value: extendedAssessment.nationality },
+    { label: 'Target', value: extendedAssessment.targetCountry },
+    { label: 'Education', value: extendedAssessment.degree + (extendedAssessment.fieldOfStudy ? ` · ${extendedAssessment.fieldOfStudy}` : '') },
+    { label: 'Experience', value: `${extendedAssessment.workExperience} yrs` },
+    { label: 'English', value: extendedAssessment.englishScore },
+    ...(extendedAssessment.targetLanguageLevel ? [{ label: 'Language', value: extendedAssessment.targetLanguageLevel }] : []),
+    { label: 'Job Offer', value: extendedAssessment.jobOffer },
+  ] : [];
+
+  const SUGGESTION_CHIPS = assessment
+    ? [
+        `What are the ${topVisa?.country ?? 'visa'} fees?`,
+        'Improve my score',
+        'Processing time',
+        'Alternative pathways',
+        'What language do I need?',
+        'Documents checklist',
+      ]
+    : ['Canada Express Entry', 'Germany Opportunity Card', 'Japan Engineer Visa', 'UK Skilled Worker'];
+
   return (
     <div className="relative min-h-screen flex flex-col bg-[#f8f6ff]">
       <div className="gooey-wrapper">
@@ -203,32 +226,23 @@ export default function AdvisorPage() {
       <NavBar activeItem="advisor" />
 
       <main className="relative z-10 flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full pt-28 pb-10 gap-6 px-4 lg:px-6">
-        <aside className="w-full md:w-80 flex flex-col gap-6 shrink-0">
-          <div className="bg-white/[0.03] backdrop-blur-[24px] border border-white/10 rounded-[28px] p-6 glass-card bg-white/70">
+        {/* Sidebar */}
+        <aside className="w-full md:w-80 flex flex-col gap-4 shrink-0">
+          <div className="glass-card bg-white/70 p-6">
             <h3 className="font-space font-bold text-lg mb-4 text-indigo-bloom">Your Profile</h3>
-            {assessment ? (
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between border-b border-indigo-bloom/10 pb-2">
-                  <span className="text-indigo-950/60">Education</span>
-                  <span className="font-medium">{assessment.degree}</span>
-                </div>
-                <div className="flex justify-between border-b border-indigo-bloom/10 pb-2">
-                  <span className="text-indigo-950/60">Experience</span>
-                  <span className="font-medium">{assessment.workExperience} years</span>
-                </div>
-                <div className="flex justify-between border-b border-indigo-bloom/10 pb-2">
-                  <span className="text-indigo-950/60">English</span>
-                  <span className="font-medium">{assessment.englishScore}</span>
-                </div>
-                <div className="flex justify-between pt-1">
-                  <span className="text-indigo-950/60">Target</span>
-                  <span className="font-medium">{assessment.targetCountry}</span>
-                </div>
+            {extendedAssessment ? (
+              <div className="space-y-2 text-sm">
+                {profileRows.map(row => (
+                  <div key={row.label} className="flex justify-between border-b border-indigo-bloom/10 pb-1.5">
+                    <span className="text-indigo-950/50 shrink-0 mr-2">{row.label}</span>
+                    <span className="font-medium text-right truncate">{row.value}</span>
+                  </div>
+                ))}
                 {topVisa && (
                   <div className="mt-4 pt-4 border-t border-indigo-bloom/10">
                     <div className="text-[10px] font-mono uppercase tracking-widest text-indigo-bloom/60 mb-1">Top Match</div>
                     <div className="font-space font-bold text-sm text-indigo-bloom">{topVisa.name}</div>
-                    <div className="text-xs text-neon-pink font-bold mt-0.5">{topVisa.score}% match</div>
+                    <div className="text-xs text-neon-pink font-bold mt-0.5">{topVisa.score}% match · {topVisa.country}</div>
                   </div>
                 )}
               </div>
@@ -241,22 +255,32 @@ export default function AdvisorPage() {
           </div>
 
           {analysis && (
-            <div className="bg-white/70 backdrop-blur-[24px] border border-white/10 rounded-[28px] p-6 glass-card">
+            <div className="glass-card bg-white/70 p-6">
               <h3 className="font-space font-bold text-sm mb-3 text-indigo-bloom flex items-center gap-2">
                 <Icon icon="lucide:file-text" className="text-neon-pink" />
-                Quick Reference
+                Priority Documents
               </h3>
-              <div className="text-xs text-indigo-950/60 leading-relaxed space-y-2">
-                <div>
-                  <span className="font-semibold text-indigo-bloom block mb-0.5">Documents needed:</span>
-                  {analysis.documents}
-                </div>
+              <div className="text-xs text-indigo-950/60 leading-relaxed">
+                {analysis.documents}
               </div>
             </div>
           )}
+
+          <Link href="/roadmaps" className="glass-card bg-white/70 p-4 flex items-center gap-3 hover:bg-white/90 transition-colors group">
+            <div className="w-10 h-10 rounded-xl bg-indigo-bloom/8 flex items-center justify-center flex-shrink-0 group-hover:bg-neon-pink/10 transition-colors">
+              <Icon icon="lucide:map" className="text-indigo-bloom group-hover:text-neon-pink transition-colors" />
+            </div>
+            <div>
+              <div className="font-medium text-sm">View Roadmap</div>
+              <div className="text-xs text-indigo-950/50">Step-by-step timeline</div>
+            </div>
+            <Icon icon="lucide:arrow-right" className="ml-auto text-indigo-bloom/30 group-hover:text-neon-pink transition-colors" />
+          </Link>
         </aside>
 
-        <section className="flex-1 flex flex-col gap-6 relative min-h-[70vh]">
+        {/* Chat area */}
+        <section className="flex-1 flex flex-col gap-4 relative min-h-[70vh]">
+          {/* Header */}
           <div className="flex items-center gap-4 bg-white/60 backdrop-blur-md rounded-2xl p-4 border border-indigo-bloom/10">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-pink to-indigo-bloom flex items-center justify-center">
               <Icon icon="lucide:cpu" className="text-white text-xl" />
@@ -265,12 +289,19 @@ export default function AdvisorPage() {
               <h2 className="font-space font-bold text-lg leading-tight">Immigration Intelligence</h2>
               <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-indigo-950/60">
                 <span className={`w-2 h-2 rounded-full ${analysisLoading || isSending ? 'bg-yellow-400 animate-pulse' : 'bg-green-500 animate-pulse'}`}></span>
-                {analysisLoading ? 'Analyzing profile…' : isSending ? 'Thinking…' : 'Gemini AI Online'}
+                {analysisLoading ? 'Analysing profile…' : isSending ? 'Thinking…' : 'Gemini AI Online'}
               </div>
             </div>
+            {assessment && (
+              <div className="text-right hidden md:block">
+                <div className="text-[10px] font-mono uppercase text-indigo-bloom/50">Target</div>
+                <div className="text-sm font-bold text-indigo-bloom">{assessment.targetCountry}</div>
+              </div>
+            )}
           </div>
 
-          <div ref={chatContainerRef} className="chat-container flex-1 overflow-y-auto space-y-6 pr-2 max-h-[calc(100vh-320px)]">
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto space-y-6 pr-1 max-h-[calc(100vh-340px)] min-h-[300px]">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'flex-col items-start gap-3'}`}>
                 {m.role === 'ai' && (
@@ -279,10 +310,16 @@ export default function AdvisorPage() {
                       <Icon icon="lucide:cpu" className="text-white text-sm" />
                     </div>
                     <span className="text-xs font-space font-bold text-indigo-bloom uppercase tracking-widest">VisaPath AI</span>
-                    {m.isStreaming && <span className="inline-flex gap-0.5 items-end h-4"><span className="w-1 h-1 bg-neon-pink rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span><span className="w-1 h-1 bg-neon-pink rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span><span className="w-1 h-1 bg-neon-pink rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span></span>}
+                    {m.isStreaming && (
+                      <span className="inline-flex gap-0.5 items-end h-4">
+                        <span className="w-1 h-1 bg-neon-pink rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                        <span className="w-1 h-1 bg-neon-pink rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                        <span className="w-1 h-1 bg-neon-pink rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                      </span>
+                    )}
                   </div>
                 )}
-                <div className={`px-6 py-4 rounded-3xl max-w-[85%] shadow-sm relative overflow-hidden ${
+                <div className={`px-6 py-4 rounded-3xl max-w-[88%] shadow-sm relative overflow-hidden ${
                   m.role === 'user'
                     ? 'bg-[#f0e8ff] border border-indigo-100 rounded-tr-none text-[#2d1b4e]'
                     : 'bg-[#faf8ff] border-indigo-bloom/10 rounded-tl-none text-indigo-bloom glass-card'
@@ -299,26 +336,28 @@ export default function AdvisorPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="flex flex-wrap gap-2 mt-auto">
-            {['Calculate Fees', 'Processing Time', 'Alternative Visas', 'Improve My Score'].map(chip => (
+          {/* Suggestion chips */}
+          <div className="flex flex-wrap gap-2">
+            {SUGGESTION_CHIPS.map(chip => (
               <button
                 key={chip}
                 onClick={() => handleSend(chip)}
                 disabled={isSending || analysisLoading}
-                className="suggestion-chip px-4 py-2 rounded-full border border-indigo-bloom/20 bg-white/50 hover:bg-white text-xs font-medium text-indigo-bloom transition-all shadow-sm disabled:opacity-40"
+                className="suggestion-chip px-4 py-2 rounded-full border border-indigo-bloom/20 bg-white/50 hover:bg-white text-xs font-medium text-indigo-bloom transition-all shadow-sm disabled:opacity-40 hover:border-neon-pink/40 hover:text-neon-pink"
               >
                 {chip}
               </button>
             ))}
           </div>
 
+          {/* Input bar */}
           <div className="relative group">
             <input
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !isSending && handleSend()}
-              placeholder="Ask about requirements, pathways, or documentation…"
+              placeholder="Ask about requirements, fees, processing times, or pathways…"
               disabled={isSending || analysisLoading}
               className="w-full bg-white/80 backdrop-blur-xl border border-indigo-bloom/20 rounded-full py-4 pl-6 pr-14 text-sm focus:outline-none focus:border-neon-pink focus:ring-1 focus:ring-neon-pink transition-all shadow-sm disabled:opacity-60"
             />

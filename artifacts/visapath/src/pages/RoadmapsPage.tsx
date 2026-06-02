@@ -6,108 +6,376 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 import { loadAssessment, type Assessment } from '@/types';
 import { calculateScores, type VisaScore } from '@/lib/scoring';
 
+// ── Document checklists ────────────────────────────────────────────────────────
 const DOC_MAP: Record<string, string[]> = {
   'canada-ee': [
-    'Valid passport (6+ months)',
-    'IELTS / CELPIP results',
-    'Educational Credential Assessment (ECA)',
-    'Employment reference letters',
-    'Proof of funds (min. CAD $13,757)',
-    'Police clearance certificate',
-    'Medical examination results',
+    'Valid passport (6+ months validity)',
+    'IELTS / CELPIP results (CLB 7+)',
+    'Educational Credential Assessment (ECA) from WES or IQAS',
+    'Employment reference letters (on company letterhead)',
+    'Proof of funds (min. CAD $13,757 for single applicant)',
+    'Police clearance certificates (all countries 6+ months)',
+    'Medical examination results from IRCC-approved physician',
+    'Digital photos meeting IRCC specifications',
     'Provincial nomination letter (if applicable)',
   ],
   'germany-oc': [
     'Valid passport',
-    'Recognized qualification / degree certificate',
-    'Proof of English or German proficiency (B2+)',
-    'Proof of financial resources (€1,027/month)',
+    'Recognised degree certificate (anabin database or KMK recognition)',
+    'Proof of German or English proficiency (B2+)',
+    'Proof of financial resources (€1,027/month minimum)',
+    'Health insurance coverage (full while in Germany)',
+    'Biometric passport photos',
+    'CV in German/European format (Lebenslauf)',
+    'Motivation letter explaining career goals in Germany',
+    'Bank statements (last 3 months)',
+  ],
+  'germany-ebc': [
+    'Valid passport',
+    'University degree (recognised or equivalent to German standards)',
+    'German language certificate (B2+ preferred)',
+    'Employment contract with salary above €45,552/year',
     'Health insurance proof',
-    'Biometric photos',
-    'CV / Resume in German format',
-    'Motivation letter',
+    'Rental agreement or confirmation of accommodation',
+    'CV and academic transcripts',
   ],
   'h1b': [
     'Valid passport',
     'Form I-129 (filed by employer)',
-    'Labor Condition Application (LCA)',
-    'Degree transcripts + diploma',
-    'Employment offer letter',
-    'DS-160 visa application',
+    'Labor Condition Application (LCA) — employer submits',
+    'Degree transcripts + official diploma',
+    'Employment offer letter (detailing role, salary)',
+    'DS-160 nonimmigrant visa application',
     'SEVIS fee receipt',
-    'Previous US visa (if any)',
+    'Prior US visa / entry records (if any)',
   ],
   'uk-sw': [
     'Valid passport',
-    'Certificate of Sponsorship (CoS)',
-    'English language proof (B1+)',
-    'Financial requirement evidence',
-    'Tuberculosis test results (if applicable)',
+    'Certificate of Sponsorship (CoS) from licensed employer',
+    'English language proof (B1+ — IELTS, GCSE, or equivalent)',
+    'Financial requirement evidence (£1,270 in bank 28 days)',
+    'Tuberculosis test results (if from listed country)',
     'Academic qualifications',
     'BRP card biometrics appointment',
+    'Healthcare surcharge payment receipt',
+  ],
+  'uk-gt': [
+    'Valid passport',
+    'Endorsement letter from Tech Nation / Royal Society / British Academy',
+    'Evidence of extraordinary ability (awards, press, salaries)',
+    'Peer recommendation letters (3+)',
+    'CV detailing career milestones',
   ],
   'australia-189': [
     'Valid passport',
-    'Skills assessment from relevant authority',
-    'IELTS results (min. 6.0 overall)',
+    'Positive skills assessment from relevant authority (ACS, Engineers Australia, etc.)',
+    'IELTS results (min. 6.0 overall, no band below 6.0)',
     'Expression of Interest (EOI) via SkillSelect',
-    'Health examination certificate',
-    'Police clearance (all countries lived in)',
+    'Health examination certificate (HAP ID)',
+    'Police clearances for all countries lived in 12+ months',
     'Employment records (last 10 years)',
-    'Superannuation / funds evidence',
+    'Character form (Form 80)',
+  ],
+  'japan-engineer': [
+    'Valid passport',
+    'Certificate of Eligibility (COE) — employer applies in Japan',
+    'University degree transcripts (in STEM / related field)',
+    'Employment contract from Japanese company',
+    'Resume / CV in Japanese format (rirekisho)',
+    'JLPT certificate (if available — N3+ strongly recommended)',
+    'Graduated from Japanese university OR 3+ years relevant experience',
+    'Application form (Visa Application Form for Japan)',
+  ],
+  'japan-hsp': [
+    'Valid passport',
+    'Certificate of Eligibility (COE)',
+    'Degree transcripts (Master\'s or PhD strongly preferred)',
+    'Employment contract with annual salary documentation',
+    'JLPT certificate (N1/N2 adds HSP points)',
+    'Publications, patents, or awards evidence',
+    'Japanese Points Calculation Sheet',
+  ],
+  'japan-startup': [
+    'Valid passport',
+    'Business plan approved by a Japanese municipality',
+    'Certificate of Eligibility (COE) from municipality',
+    'Proof of sufficient funds (¥5M or more)',
+    'Recommendation letter from designated city/prefecture',
+    'Business Activity Plan (detailed)',
+  ],
+  'sk-e7': [
+    'Valid passport',
+    'Employment contract from Korean company',
+    'Degree transcripts + diploma',
+    'TOPIK certificate (encouraged — score adds points)',
+    'Criminal record certificate from home country',
+    'Health check results',
+    'Employer\'s business registration certificate',
+    'Letter of guarantee from Korean employer',
+  ],
+  'sg-ep': [
+    'Valid passport',
+    'Employment Pass application via MyMOM Portal (employer applies)',
+    'Educational certificates and transcripts',
+    'Employer\'s MOM-registered company details',
+    'Salary offer letter (SGD 5,000+ for new applicants; SGD 10,500 for finance sector)',
+    'Resume / CV',
+  ],
+  'sg-techpass': [
+    'Valid passport',
+    'Evidence of leadership at AI / data / cybersecurity / fintech company',
+    'Technical portfolio / LinkedIn / GitHub',
+    'Letter from reputable VC or tech organisation (if applicable)',
+    'Proof of significant salary (top 25th percentile in sector)',
+  ],
+  'australia-186': [
+    'Valid passport',
+    'Employer nomination approval',
+    'Skills assessment from relevant authority',
+    'IELTS results',
+    'Health examinations',
+    'Character clearances',
+    'Employment contract',
+  ],
+  'nz-skilled': [
+    'Valid passport',
+    'Skills assessment from relevant NZ authority (NZQA, NZISM, etc.)',
+    'IELTS results (minimum band 6.5)',
+    'Points Claim Form with evidence',
+    'Police clearances',
+    'Medical certificates',
+    'Employment offer or skilled job offer in NZ',
+  ],
+  'france-tp': [
+    'Valid passport',
+    'Talent Passport application dossier',
+    'Employment contract or research / creation agreement',
+    'Degree transcripts (Master\'s or PhD preferred)',
+    'French tax authority proof of sufficient salary',
+    'Accommodation proof',
+    'French language certificate (not mandatory but helpful)',
+    'CV and motivation letter',
+  ],
+  'nl-hsm': [
+    'Valid passport',
+    'Employment contract with IND-recognised sponsor',
+    'Salary evidence above HSM threshold (€63,894 under 30, €46,107 over 30)',
+    'Employer declaration of sponsorship',
+    'Educational certificates',
+    'Residence permit application (MVV or direct)',
+  ],
+  'ireland-csp': [
+    'Valid passport',
+    'Employment contract (€38,000+ annual salary)',
+    'Employer letter confirming role on Critical Skills list',
+    'Degree certificate',
+    'Garda vetting / police clearance',
+    'Proof of accommodation',
+    'GNIB registration after arrival',
   ],
   'o1a': [
     'Valid passport',
-    'Form I-129O petition (by employer/agent)',
-    'Evidence of extraordinary ability (awards, publications)',
-    'Peer review letters (3+)',
-    'Salary/contract evidence',
+    'Form I-129O petition (by employer or agent)',
+    'Evidence of extraordinary ability (major awards, publications, salary, press)',
+    'Peer recommendation letters (3+ from recognised experts)',
     'Media coverage / press mentions',
-    'Organization memberships',
+    'Professional memberships in judged panels',
+    'Employment contract or agent agreement',
   ],
   'eb2niw': [
     'Valid passport',
     'Form I-140 petition',
-    'Advanced degree transcripts',
-    'National interest benefit statement',
-    'Evidence of exceptional ability',
-    'Three independent expert letters',
-    'Published research / patents (if applicable)',
+    'Advanced degree transcripts (Master\'s or PhD)',
+    'National interest benefit statement (detailed)',
+    'Evidence of exceptional ability (10-point criteria)',
+    'Three independent expert recommendation letters',
+    'Published research, patents, or citations (if applicable)',
+    'USCIS filing fee receipt',
   ],
 };
 
+// ── Application timelines ───────────────────────────────────────────────────────
 const MILESTONE_MAP: Record<string, { month: string; label: string; detail: string }[]> = {
   'canada-ee': [
-    { month: 'Month 1–2', label: 'Language Test', detail: 'Take IELTS / CELPIP and get results' },
-    { month: 'Month 2–3', label: 'ECA & Profile Creation', detail: 'Get credential assessed, create Express Entry profile' },
-    { month: 'Month 3–6', label: 'Wait for ITA', detail: 'Improve CRS score, await Invitation to Apply' },
-    { month: 'Month 6–9', label: 'Application Submission', detail: 'Submit full PR application within 60 days of ITA' },
-    { month: 'Month 9–15', label: 'IRCC Processing', detail: 'Biometrics, medicals, background checks' },
-    { month: 'Month 15+', label: 'PR Landing', detail: 'Receive COPR, land in Canada as permanent resident' },
+    { month: 'Month 1–2',  label: 'Language Test',          detail: 'Book and complete IELTS or CELPIP — allow 4 weeks for results' },
+    { month: 'Month 2–3',  label: 'ECA & Profile Creation', detail: 'Get credentials assessed by WES (8–10 weeks), create Express Entry profile' },
+    { month: 'Month 3–8',  label: 'CRS Score & ITA',        detail: 'Improve CRS score via IELTS re-test or provincial nomination; await Invitation to Apply' },
+    { month: 'Month 8–9',  label: 'Application Submission', detail: 'Submit full PR application within 60 days of ITA with all documents' },
+    { month: 'Month 9–15', label: 'IRCC Processing',        detail: 'Biometrics, medical examination, background checks, COPR issued' },
+    { month: 'Month 15+',  label: 'PR Landing',             detail: 'Land in Canada as permanent resident, receive PR card within 8 weeks' },
   ],
   'germany-oc': [
-    { month: 'Month 1', label: 'Document Preparation', detail: 'Gather degree, CV, proof of funds, language certificate' },
-    { month: 'Month 1–2', label: 'Visa Application', detail: 'Submit to German embassy / consulate in your country' },
-    { month: 'Month 2–4', label: 'Visa Approval', detail: 'Receive Opportunity Card (valid 1 year)' },
-    { month: 'Month 4–8', label: 'Job Search in Germany', detail: 'Actively search for employers who will sponsor you' },
-    { month: 'Month 8–12', label: 'Work Permit Conversion', detail: 'Convert to work permit once you have a job offer' },
-    { month: 'Year 2+', label: 'Permanent Residency Path', detail: 'Apply for Niederlassungserlaubnis after qualifying period' },
+    { month: 'Month 1',    label: 'Document Preparation',      detail: 'Obtain degree recognition (anabin), prepare CV, language cert, funds proof' },
+    { month: 'Month 1–3',  label: 'Visa Application',          detail: 'Submit to German embassy; processing 4–12 weeks depending on location' },
+    { month: 'Month 3–4',  label: 'Opportunity Card Issued',   detail: 'Receive visa valid for 1 year; travel to Germany' },
+    { month: 'Month 4–8',  label: 'Job Search',                detail: 'Actively apply and interview with German employers; register with Agentur für Arbeit' },
+    { month: 'Month 8–10', label: 'Work Permit Conversion',    detail: 'Once job offer confirmed, convert to work permit at local Ausländerbehörde' },
+    { month: 'Year 3–5',   label: 'Permanent Residency',       detail: 'Apply for Niederlassungserlaubnis after meeting pension and language requirements' },
   ],
   'h1b': [
-    { month: 'Oct–Dec', label: 'Find Employer Sponsor', detail: 'Secure a US company willing to file H-1B' },
-    { month: 'Mar 1–20', label: 'USCIS Registration', detail: 'Employer registers in the H-1B lottery (cap-subject)' },
-    { month: 'Apr', label: 'Lottery Selection', detail: 'USCIS runs random lottery; ~20% selection rate' },
-    { month: 'Apr–Jun', label: 'Petition Filing', detail: 'Employer files Form I-129 for selected registrants' },
-    { month: 'Jun–Sep', label: 'USCIS Adjudication', detail: 'Premium processing (15 days) or regular (~4 months)' },
-    { month: 'Oct 1', label: 'H-1B Start Date', detail: 'Cap-subject H-1B visas begin on October 1st' },
+    { month: 'Oct–Feb',    label: 'Find Employer Sponsor',    detail: 'Secure a US company willing to file H-1B — many start recruitment in autumn' },
+    { month: 'Mar 1–20',   label: 'USCIS Registration',       detail: 'Employer registers in H-1B lottery ($10 fee); registration window is very short' },
+    { month: 'Apr',        label: 'Lottery Selection',        detail: 'USCIS conducts random lottery — ~20% for regular, ~10% for master\'s cap' },
+    { month: 'Apr–Jun',    label: 'Petition Filing',          detail: 'Employer files Form I-129 for selected registrants; premium processing (15 days) available' },
+    { month: 'Jun–Sep',    label: 'Consular Interview',       detail: 'If outside US, attend visa interview at US embassy or consulate' },
+    { month: 'Oct 1',      label: 'H-1B Start Date',          detail: 'Cap-subject H-1B employment can begin October 1st' },
+  ],
+  'uk-sw': [
+    { month: 'Month 1',    label: 'Secure CoS',              detail: 'Employer with valid sponsor licence issues Certificate of Sponsorship' },
+    { month: 'Month 1–2',  label: 'Application Submission',  detail: 'Apply online; pay visa fee + NHS surcharge; provide biometrics at UKVCAS' },
+    { month: 'Month 2–3',  label: 'Decision',                detail: 'Standard processing 8 weeks; priority service 5 business days available' },
+    { month: 'Month 3',    label: 'Travel to UK',            detail: 'Collect BRP card within 10 days of arrival' },
+    { month: 'Year 5',     label: 'Indefinite Leave to Remain', detail: 'Apply for ILR after 5 years of continuous residence' },
+    { month: 'Year 6+',    label: 'British Citizenship',     detail: 'Apply for naturalisation 12 months after ILR' },
+  ],
+  'australia-189': [
+    { month: 'Month 1–3',  label: 'Skills Assessment',         detail: 'Submit skills assessment to relevant authority (ACS, Engineers Australia, etc.) — 4–12 weeks' },
+    { month: 'Month 3–4',  label: 'IELTS & EOI',              detail: 'Achieve IELTS 6.0+ minimum; lodge Expression of Interest in SkillSelect' },
+    { month: 'Month 4–12', label: 'Await Invitation',         detail: 'Invited to Apply is points-based — higher points = faster invitation' },
+    { month: 'Month 12–14',label: 'Application Submission',   detail: 'Submit visa application within 60 days of invitation with all documentation' },
+    { month: 'Month 14–20',label: 'Processing',               detail: 'Health exams (HAP), police clearances, character assessments' },
+    { month: 'Month 20+',  label: 'Permanent Residency',      detail: 'Granted PR — must make first entry before grant expiry (usually 5 years)' },
+  ],
+  'japan-engineer': [
+    { month: 'Month 1–2',  label: 'Secure Japanese Employer',   detail: 'Find a company willing to hire and sponsor you — without this, the visa is not possible' },
+    { month: 'Month 2–3',  label: 'COE Application',            detail: 'Employer applies for Certificate of Eligibility (COE) at regional immigration office — 1–3 months' },
+    { month: 'Month 4–5',  label: 'COE Issuance',               detail: 'COE is issued and sent to you in your home country' },
+    { month: 'Month 5–6',  label: 'Visa Application',           detail: 'Apply at Japanese consulate with COE — typically 5 business days processing' },
+    { month: 'Month 6',    label: 'Arrive in Japan',            detail: 'Enter on Engineer/Specialist in Humanities visa, register address within 14 days' },
+    { month: 'Year 3+',    label: 'Permanent Residency Path',   detail: 'Apply for PR after 10 years (or 3 years with high HSP points score)' },
+  ],
+  'sk-e7': [
+    { month: 'Month 1–2',  label: 'Job Offer',               detail: 'Secure a job offer from a Korean company in an eligible E-7 occupation' },
+    { month: 'Month 2–3',  label: 'TOPIK (Optional)',        detail: 'Take TOPIK test — higher scores increase eligibility points' },
+    { month: 'Month 3–4',  label: 'Visa Application',        detail: 'Apply at Korean embassy in home country with full document package' },
+    { month: 'Month 4–5',  label: 'Entry & ARC Registration',detail: 'Enter South Korea; register for Alien Registration Card (ARC) within 90 days' },
+    { month: 'Year 3–5',   label: 'Permanent Residency',     detail: 'F-5 Permanent Resident visa available after 3–5 years with point scores met' },
+  ],
+  'sg-ep': [
+    { month: 'Month 1',    label: 'Employer Applies',         detail: 'Singapore employer submits EP application via MyMOM Portal — online, no paper forms' },
+    { month: 'Month 1–2',  label: 'Approval',                detail: 'Online approval usually within 3 weeks; may request additional documents' },
+    { month: 'Month 2',    label: 'In-Principle Approval (IPA)', detail: 'IPA letter issued — you can travel to Singapore' },
+    { month: 'Month 2–3',  label: 'Card Collection',         detail: 'Complete formalities at MOM services centre; EP card ready 4 business days' },
+    { month: 'Year 2+',    label: 'Renewal / PR Application',detail: 'EP renewed every 1–3 years; PR application possible after 2 years with strong ties' },
+  ],
+  'france-tp': [
+    { month: 'Month 1',    label: 'Prepare Dossier',          detail: 'Gather employment contract, degree, financial proofs, motivation letter' },
+    { month: 'Month 1–2',  label: 'VFS / Consulate Appointment', detail: 'Book appointment at French embassy — Talent Passport handled by ANEF online' },
+    { month: 'Month 2–3',  label: 'OFII Validation',         detail: 'Arrive in France; validate long-stay visa with OFII within 3 months' },
+    { month: 'Month 3',    label: 'Titre de Séjour',         detail: 'Receive residence permit — initially 4-year Talent Passport' },
+    { month: 'Year 4',     label: 'Renewal',                 detail: 'Renew for another 4 years if contract/activity continues' },
+    { month: 'Year 5',     label: 'Permanent Residency',     detail: 'Apply for 10-year carte de résident after 5 years of continuous legal residence' },
+  ],
+  'ireland-csp': [
+    { month: 'Month 1',    label: 'Secure Job Offer',         detail: 'Confirm role is on Critical Skills Eligible Occupations list, salary €38,000+' },
+    { month: 'Month 1–2',  label: 'Employment Permit Application', detail: 'Employer or employee applies online via Employment Permits Online; 6–8 week processing' },
+    { month: 'Month 2–4',  label: 'Permit Decision',         detail: 'Critical Skills Employment Permit issued; apply for entry clearance / visa if required' },
+    { month: 'Month 4–5',  label: 'Arrive & Register',       detail: 'Register with GNIB/IRP within 90 days of arrival for residence stamp' },
+    { month: 'Year 2',     label: 'General Employment Permit / PR path', detail: 'After 2 years, employer-independent permission available' },
+    { month: 'Year 5',     label: 'Citizenship Eligibility',  detail: 'Irish citizenship by naturalisation after 5 years continuous reckonable residence' },
+  ],
+  'nz-skilled': [
+    { month: 'Month 1–3',  label: 'Skills Assessment',       detail: 'Apply to relevant NZ authority (NZQA, NZISM, etc.) — 8–12 weeks typical' },
+    { month: 'Month 3–4',  label: 'IELTS & EOI',            detail: 'Achieve IELTS 6.5+; lodge Expression of Interest in the Skilled Migrant pool' },
+    { month: 'Month 4–8',  label: 'Pool Selection',         detail: 'INZ selects highest-scoring candidates — selection every 2 weeks' },
+    { month: 'Month 8–11', label: 'Application',            detail: 'Submit Resident Visa application within 4 months of selection' },
+    { month: 'Month 11–16',label: 'Processing',             detail: 'Background checks, medicals, character assessments' },
+    { month: 'Month 16+',  label: 'Permanent Residence',    detail: 'Resident Visa granted — permanent and travel-enabled after 2 years' },
   ],
   default: [
-    { month: 'Month 1–2', label: 'Research & Preparation', detail: 'Research requirements, gather initial documents' },
-    { month: 'Month 2–4', label: 'Document Collection', detail: 'Obtain all required certificates and assessments' },
-    { month: 'Month 4–6', label: 'Application Submission', detail: 'Submit visa application with all documents' },
-    { month: 'Month 6–10', label: 'Processing Period', detail: 'Government review, biometrics, medicals if required' },
-    { month: 'Month 10–14', label: 'Decision & Approval', detail: 'Receive visa decision, prepare for travel' },
-    { month: 'Month 14+', label: 'Arrival & Settlement', detail: 'Arrive in target country, begin settlement process' },
+    { month: 'Month 1–2',  label: 'Research & Preparation', detail: 'Confirm eligibility, gather core documents, book required tests' },
+    { month: 'Month 2–4',  label: 'Document Collection',    detail: 'Obtain all certified certificates, translations, and official assessments' },
+    { month: 'Month 4–6',  label: 'Application Submission', detail: 'Submit visa application with complete documentation package' },
+    { month: 'Month 6–10', label: 'Processing Period',      detail: 'Government review, biometrics, medicals, background checks if required' },
+    { month: 'Month 10–14',label: 'Decision & Approval',    detail: 'Receive visa decision; prepare for relocation if approved' },
+    { month: 'Month 14+',  label: 'Arrival & Settlement',   detail: 'Arrive in target country, complete registration formalities within required timeframe' },
+  ],
+};
+
+// ── Pricing breakdowns ─────────────────────────────────────────────────────────
+const PRICING_MAP: Record<string, { item: string; cost: string }[]> = {
+  'canada-ee': [
+    { item: 'IELTS test fee', cost: 'CAD ~$320' },
+    { item: 'Educational Credential Assessment (WES)', cost: 'CAD ~$215–$365' },
+    { item: 'Express Entry profile (free)', cost: 'CAD $0' },
+    { item: 'PR application fee (principal applicant)', cost: 'CAD $1,365' },
+    { item: 'Right of Permanent Residence fee', cost: 'CAD $575' },
+    { item: 'Medical examination', cost: 'CAD ~$450' },
+    { item: 'Police clearance (varies)', cost: 'CAD ~$50–$150' },
+    { item: 'Biometrics', cost: 'CAD $85' },
+  ],
+  'germany-oc': [
+    { item: 'Opportunity Card visa fee', cost: '€75' },
+    { item: 'German language test (Goethe B2)', cost: '~€200–€250' },
+    { item: 'Degree recognition assessment', cost: '€100–€200' },
+    { item: 'Document notarisation & translation', cost: '~€200–€400' },
+    { item: 'Health insurance (monthly)', cost: '€200–€350/month' },
+    { item: 'Settlement registration (Anmeldung)', cost: 'Free' },
+  ],
+  'h1b': [
+    { item: 'USCIS registration fee (employer)', cost: 'USD $10' },
+    { item: 'I-129 petition fee (employer)', cost: 'USD $730–$2,460' },
+    { item: 'Premium processing (optional)', cost: 'USD $2,805' },
+    { item: 'DS-160 visa application', cost: 'USD $185' },
+    { item: 'SEVIS fee', cost: 'USD $200' },
+  ],
+  'uk-sw': [
+    { item: 'Visa application fee (3 years)', cost: '£719' },
+    { item: 'NHS Immigration Health Surcharge (3 yrs)', cost: '£1,872' },
+    { item: 'Biometric enrolment', cost: 'Included' },
+    { item: 'IELTS UKVI test', cost: '~£200' },
+    { item: 'BRP card (first time)', cost: 'Included' },
+  ],
+  'australia-189': [
+    { item: 'Skills assessment (ACS / Engineers Australia)', cost: 'AUD $500–$1,000' },
+    { item: 'IELTS test', cost: 'AUD ~$370' },
+    { item: 'Visa application charge (primary)', cost: 'AUD $4,640' },
+    { item: 'Health examination (HAP)', cost: 'AUD ~$350–$500' },
+    { item: 'Police clearances (per country)', cost: 'AUD ~$50–$150' },
+  ],
+  'japan-engineer': [
+    { item: 'COE application (employer, free)', cost: '¥0' },
+    { item: 'Visa application fee', cost: '¥3,000' },
+    { item: 'JLPT test fee', cost: '¥5,500–¥7,000' },
+    { item: 'Degree evaluation / translation', cost: '¥10,000–¥30,000' },
+    { item: 'Resident card registration (free)', cost: '¥0' },
+  ],
+  'japan-startup': [
+    { item: 'Business plan preparation', cost: 'Varies' },
+    { item: 'Municipal application fee', cost: 'Free – ¥10,000' },
+    { item: 'Visa application fee', cost: '¥3,000' },
+    { item: 'Company incorporation fees', cost: '¥150,000–¥250,000' },
+    { item: 'Required capital (minimum)', cost: '¥500,000' },
+  ],
+  'sk-e7': [
+    { item: 'Visa application fee', cost: 'KRW ~110,000 (~USD $85)' },
+    { item: 'TOPIK registration', cost: 'KRW 40,000 (~USD $30)' },
+    { item: 'Document translation / notarisation', cost: 'KRW ~100,000–200,000' },
+    { item: 'Alien Registration Card', cost: 'KRW 30,000' },
+  ],
+  'sg-ep': [
+    { item: 'EP application fee', cost: 'SGD $105' },
+    { item: 'Card issuance fee', cost: 'SGD $225' },
+    { item: 'Document translation (if needed)', cost: 'SGD ~$50–$200' },
+  ],
+  'france-tp': [
+    { item: 'Long-stay visa fee', cost: '€99' },
+    { item: 'OFII residence validation', cost: '€200' },
+    { item: 'Document translation (certified)', cost: '€50–€150 per document' },
+    { item: 'DELF/DALF language test (optional)', cost: '€80–€200' },
+  ],
+  'ireland-csp': [
+    { item: 'Employment Permit application', cost: '€1,000 (refundable if refused)' },
+    { item: 'Entry clearance / D visa (if needed)', cost: '€60–€100' },
+    { item: 'GNIB / IRP registration', cost: '€300' },
+    { item: 'Document notarisation', cost: '€100–€300' },
+  ],
+  'nz-skilled': [
+    { item: 'Skills assessment fee', cost: 'NZD $400–$800' },
+    { item: 'IELTS test', cost: 'NZD ~$350' },
+    { item: 'Resident Visa application', cost: 'NZD $3,940' },
+    { item: 'Police clearances', cost: 'NZD ~$50–$150 per country' },
+    { item: 'Medical certificate', cost: 'NZD ~$400' },
   ],
 };
 
@@ -129,6 +397,7 @@ export default function RoadmapsPage() {
     : MILESTONE_MAP.default;
 
   const docs = topMatch ? (DOC_MAP[topMatch.visa.id] ?? []) : [];
+  const pricing = topMatch ? (PRICING_MAP[topMatch.visa.id] ?? []) : [];
 
   return (
     <div className="relative min-h-screen flex flex-col bg-[#f8f6ff]">
@@ -147,7 +416,7 @@ export default function RoadmapsPage() {
           </h1>
           <p className="text-xl text-indigo-950/70">
             {topMatch
-              ? `Personalized roadmap for ${topMatch.visa.name} — ${topMatch.visa.country}`
+              ? `Personalised roadmap for ${topMatch.visa.name} — ${topMatch.visa.country}`
               : 'Complete your assessment to get a personalized roadmap'}
           </p>
         </div>
@@ -207,6 +476,7 @@ export default function RoadmapsPage() {
                 <h3 className="font-space font-bold text-base mb-4 text-indigo-bloom">Profile Summary</h3>
                 <div className="space-y-2 text-sm">
                   {[
+                    { label: 'Goal', value: (assessment as Assessment & { immigrationGoal?: string }).immigrationGoal || '—' },
                     { label: 'Education', value: assessment.degree },
                     { label: 'Experience', value: `${assessment.workExperience} years` },
                     { label: 'English', value: assessment.englishScore },
@@ -215,13 +485,13 @@ export default function RoadmapsPage() {
                   ].map(item => (
                     <div key={item.label} className="flex justify-between border-b border-indigo-bloom/8 pb-2">
                       <span className="text-indigo-950/50">{item.label}</span>
-                      <span className="font-medium text-right">{item.value}</span>
+                      <span className="font-medium text-right truncate ml-2 max-w-[60%]">{item.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* CTA */}
+              {/* CTA buttons */}
               <Link href="/advisor" className="light-beam-btn py-4 flex items-center justify-center gap-2 font-semibold">
                 <Icon icon="lucide:cpu" />
                 Ask AI Advisor
@@ -291,7 +561,28 @@ export default function RoadmapsPage() {
                 </div>
               )}
 
-              {/* Next steps */}
+              {/* Pricing breakdown */}
+              {pricing.length > 0 && (
+                <div className="glass-card p-8">
+                  <h2 className="font-space font-bold text-xl mb-6 flex items-center gap-2">
+                    <Icon icon="lucide:wallet" className="text-neon-pink" />
+                    Cost Breakdown
+                  </h2>
+                  <div className="space-y-2">
+                    {pricing.map((p, i) => (
+                      <div key={i} className="flex items-center justify-between py-2 border-b border-indigo-bloom/8 last:border-0">
+                        <span className="text-sm text-indigo-950/70">{p.item}</span>
+                        <span className="font-mono font-bold text-sm text-indigo-bloom bg-indigo-bloom/6 px-3 py-1 rounded-full">{p.cost}</span>
+                      </div>
+                    ))}
+                    <div className="mt-3 pt-3 border-t border-indigo-bloom/20 text-xs text-indigo-950/40 italic">
+                      * Costs are estimates and subject to change. Always verify with official government sources.
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Key next steps */}
               <div className="glass-card p-8 border-l-4 border-l-neon-pink">
                 <h2 className="font-space font-bold text-xl mb-6 flex items-center gap-2">
                   <Icon icon="lucide:zap" className="text-neon-pink" />
@@ -299,10 +590,10 @@ export default function RoadmapsPage() {
                 </h2>
                 <div className="space-y-4">
                   {[
-                    { icon: 'lucide:book-open', step: 'Research official requirements', detail: 'Visit the official immigration website for your target country to confirm current requirements.' },
-                    { icon: 'lucide:mic', step: 'Book language test', detail: 'Schedule IELTS, TOEFL, or equivalent — slots fill up 4–6 weeks in advance.' },
-                    { icon: 'lucide:graduation-cap', step: 'Get credentials assessed', detail: 'Arrange an official credential evaluation from a recognized body in your target country.' },
-                    { icon: 'lucide:cpu', step: 'Get AI guidance', detail: 'Use the AI Advisor to answer specific questions about your application.' },
+                    { icon: 'lucide:book-open', step: 'Research official requirements', detail: `Visit the official ${topMatch?.visa.country ?? 'destination country'} immigration website to confirm current requirements and fee schedules.` },
+                    { icon: 'lucide:mic', step: 'Book language test', detail: 'IELTS, JLPT, TOPIK, Goethe, or equivalent — test slots fill up 4–6 weeks in advance so book early.' },
+                    { icon: 'lucide:graduation-cap', step: 'Get credentials assessed', detail: 'Arrange an official credential evaluation from a recognised body in your target country — allow 8–12 weeks.' },
+                    { icon: 'lucide:cpu', step: 'Get personalised AI guidance', detail: 'Use the AI Advisor to get specific answers about your application, fees, and what to do next.' },
                   ].map((item, i) => (
                     <div key={i} className="flex gap-4 p-4 rounded-xl hover:bg-white/50 active:scale-[0.98] transition-all cursor-default">
                       <div className="w-10 h-10 rounded-xl bg-neon-pink/10 flex items-center justify-center flex-shrink-0">

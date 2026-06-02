@@ -1,0 +1,338 @@
+Upgrade VisaPath AI from a static questionnaire to an AI-powered adaptive immigration assessment.
+
+IMPORTANT:
+
+Do not redesign the UI.
+
+Do not change colors.
+
+Do not change animations.
+
+Do not modify layout.
+
+Only improve intelligence, assessment quality, recommendations, roadmaps, pricing estimates, and AI advisor functionality.
+
+==================================================
+CORE PROBLEM
+============
+
+The current assessment is too generic.
+
+It asks the same questions regardless of:
+
+* Destination country
+* Visa type
+* User goals
+
+This produces unrealistic recommendations.
+
+The assessment must become country-specific and dynamically generated.
+
+==================================================
+COUNTRY SELECTION
+=================
+
+Current issue:
+
+Too few countries are available.
+
+Requirements:
+
+Provide a searchable list of all countries.
+
+Examples:
+
+USA
+Canada
+UK
+Germany
+Japan
+South Korea
+Australia
+Singapore
+France
+Netherlands
+Ireland
+Sweden
+Norway
+Switzerland
+
+and all other countries.
+
+If user selects:
+
+Other
+
+Display:
+
+"Please enter your country"
+
+with searchable text input.
+
+Apply this for:
+
+* Nationality
+* Current Country
+* Target Country
+
+==================================================
+IMMIGRATION GOAL
+================
+
+Before assessment begins ask:
+
+Why are you immigrating?
+
+Options:
+
+* Study
+* Work
+* Skilled Migration
+* Startup / Business
+* Permanent Residency
+* Family Sponsorship
+
+This selection should influence the assessment.
+
+==================================================
+AI-POWERED DYNAMIC QUESTIONNAIRE
+================================
+
+Integrate Gemini API or ChatGPT API.
+
+The AI should generate questions dynamically based on:
+
+* Nationality
+* Current country
+* Destination country
+* Immigration goal
+
+Examples:
+
+Target Country = Japan
+
+Ask:
+
+* Japanese language proficiency
+* JLPT certification
+* Employer sponsorship
+* Degree recognition
+* Field of study
+
+Target Country = Germany
+
+Ask:
+
+* German proficiency
+* Recognized degree
+* Work experience
+* Financial proof
+
+Target Country = Canada
+
+Ask:
+
+* IELTS score
+* CELPIP score
+* French proficiency
+* CRS-related factors
+
+Target Country = USA
+
+Ask:
+
+* Employer sponsorship
+* STEM degree
+* Visa category
+* Work authorization history
+
+Questions should adapt dynamically.
+
+==================================================
+EDUCATION
+=========
+
+Current issue:
+
+Only education level is collected.
+
+Add:
+
+Field of study.
+
+Examples:
+
+* Computer Science
+* Engineering
+* Medicine
+* Business
+* Law
+* Arts
+* Other
+
+==================================================
+WORK EXPERIENCE
+===============
+
+Clarify experience.
+
+Ask:
+
+How many years of FULL-TIME professional experience do you have?
+
+Exclude:
+
+* Internships
+* Volunteer work
+
+==================================================
+COUNTRY-SPECIFIC LANGUAGE REQUIREMENTS
+======================================
+
+Examples:
+
+Japan:
+
+* JLPT
+
+South Korea:
+
+* TOPIK
+
+Germany:
+
+* Goethe / CEFR
+
+France:
+
+* DELF / DALF
+
+Canada:
+
+* IELTS / CELPIP / TEF
+
+UK:
+
+* IELTS UKVI
+
+Questions should only appear when relevant.
+
+==================================================
+RECOMMENDATION ENGINE
+=====================
+
+Recommendations must prioritize the user's selected destination country.
+
+Example:
+
+User selects Japan.
+
+First show:
+
+* Japan Engineer Visa
+* Japan Highly Skilled Professional Visa
+* Japan Startup Visa
+
+Only after that show:
+
+Alternative countries with stronger eligibility.
+
+Do not rank Canada first when Japan was selected.
+
+==================================================
+STRICT SCORING
+==============
+
+Do not generate high scores with missing information.
+
+Missing critical requirements must significantly reduce eligibility.
+
+Example:
+
+Japan:
+No Japanese language
+No sponsor
+
+Result:
+
+40-50%
+
+Not 85-90%.
+
+==================================================
+AI ADVISOR
+==========
+
+Connect advisor to assessment results.
+
+Advisor should generate:
+
+* Eligibility explanation
+* Missing requirements
+* Required documents
+* Risks
+* Next steps
+* Suggested timeline
+
+All advice should be based on:
+
+* Destination country
+* Visa pathway
+* Assessment answers
+
+==================================================
+ROADMAPS
+========
+
+Generate country-specific roadmaps.
+
+Example:
+
+Japan Roadmap:
+
+1. Obtain JLPT N3
+2. Secure employer sponsorship
+3. Gather documents
+4. Submit application
+5. Visa processing
+
+Germany Roadmap:
+
+1. Degree recognition
+2. German language preparation
+3. Financial proof
+4. Opportunity Card application
+
+==================================================
+PRICING ESTIMATES
+=================
+
+Generate country-specific cost estimates.
+
+Examples:
+
+* Visa fees
+* Language exams
+* Credential evaluation
+* Medical exams
+* Travel expenses
+* Settlement costs
+
+Display detailed breakdown.
+
+==================================================
+FINAL GOAL
+==========
+
+VisaPath should behave like a real immigration consultant.
+
+Every assessment should feel personalized to:
+
+* User nationality
+* Current country
+* Target country
+* Immigration goal
+
+The application should no longer feel like a generic 8-question quiz.
+
+It should feel like an intelligent immigration advisor.
