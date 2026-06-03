@@ -25,27 +25,27 @@ Powered by **Supabase**, every assessment, recommendation, roadmap, and chat con
 
 ## How we built it
 
-**Frontend: React + Vite + Tailwind**
-We built a single-page application using React 19 with Vite 7 for lightning-fast HMR, Tailwind CSS 4 for utility-first styling, and Framer Motion + GSAP for scroll animations and gooey background effects. Routing is handled by `wouter` for minimal bundle size.
+**Frontend: React + TypeScript + Vite + Tailwind CSS**
+We built a single-page application using React 19 with TypeScript 5.9 for type safety, Vite 7 for lightning-fast HMR, and Tailwind CSS 4 for utility-first styling. Animations are powered by Framer Motion and GSAP for scroll effects and gooey background animations. Routing is handled by `wouter` for minimal bundle size. Icons come from Lucide React and Iconify. The entire frontend is built in TypeScript — no plain JavaScript anywhere.
 
-**Backend: Express + esbuild**
-The API server is built on Express 5 with Node.js. We use **esbuild** for bundling (not tsc) to produce a single 2.8MB executable. Logging is handled by Pino with `pino-http` for structured request tracing.
+**Backend: Express + TypeScript + esbuild**
+The API server is built on Express 5 with Node.js, fully written in TypeScript. We use **esbuild** for bundling (not tsc) to produce a single 2.8MB ESM executable. Logging is handled by Pino with `pino-http` for structured request tracing. The backend is also 100% TypeScript — no JavaScript, Python, Java, or C.
 
 **Contract-First API Design**
 We chose an OpenAPI + Orval code generation approach. The API contract is defined in a single OpenAPI spec, and Orval generates both Zod validation schemas and React Query hooks. The frontend and backend stay in sync automatically — no type drift between the two sides.
 
-**AI Layer: Gemini 2.5 Flash**
-The backend connects to Gemini via a custom wrapper in a shared workspace library. Five endpoints power the experience:
+**AI Layer: Google Gemini 2.5 Flash**
+The backend connects to Gemini via a custom TypeScript wrapper in a shared workspace library. Five endpoints power the experience:
 - `analyze` — deep eligibility analysis for the top match
 - `questions` — dynamic follow-up questions to refine the profile
 - `roadmap` — month-by-month immigration timeline
 - `pricing` — cost breakdown in local currency
 - `chat` — streaming conversational advisor
 
-**A critical design decision:** The scoring engine is entirely **rule-based and deterministic**. Gemini is used only for natural language explanations, roadmap generation, and conversational advice — never for score calculation. This ensures reproducible, explainable scores while still delivering AI-powered conversational experiences.
+**A critical design decision:** The scoring engine is entirely **rule-based and deterministic** (written in TypeScript). Gemini is used only for natural language explanations, roadmap generation, and conversational advice — never for score calculation. This ensures reproducible, explainable scores while still delivering AI-powered conversational experiences.
 
 **Monorepo Architecture**
-The project is structured as a pnpm workspace with shared libraries:
+The project is structured as a pnpm workspace with shared TypeScript libraries:
 - `@workspace/api-zod` — shared Zod schemas + OpenAPI types
 - `@workspace/db` — Drizzle ORM schema + client
 - `@workspace/integrations-gemini-ai` — Gemini SDK wrapper with streaming support
