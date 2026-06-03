@@ -9,13 +9,18 @@ import { rm } from "node:fs/promises";
 globalThis.require = createRequire(import.meta.url);
 
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
+const isVercel = process.env.VERCEL === "1";
+
+const entryFile = isVercel ? "src/vercel.ts" : "src/index.ts";
+const distDir = isVercel
+  ? path.resolve(artifactDir, "../../api")
+  : path.resolve(artifactDir, "dist");
 
 async function buildAll() {
-  const distDir = path.resolve(artifactDir, "dist");
   await rm(distDir, { recursive: true, force: true });
 
   await esbuild({
-    entryPoints: [path.resolve(artifactDir, "src/index.ts")],
+    entryPoints: [path.resolve(artifactDir, entryFile)],
     platform: "node",
     bundle: true,
     format: "esm",
