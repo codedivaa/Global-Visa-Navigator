@@ -5,10 +5,19 @@ import NavBar from '@/components/NavBar';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { loadAssessment } from '@/types';
 import { calculateScores, type ScoringResult, type VisaScore } from '@/lib/scoring';
+import { visas } from '@/data/visas';
 import { useAuth } from '@/contexts/AuthContext';
 import { saveRecommendationsToDb } from '@/lib/db';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+function categoryFromScore(score: number): string {
+  if (score >= 88) return 'Excellent Match';
+  if (score >= 72) return 'Strong Match';
+  if (score >= 55) return 'Moderate Match';
+  if (score >= 35) return 'Developing Match';
+  return 'Weak Match';
+}
 
 function VisaCard({ match, rank }: { match: VisaScore; rank?: number }) {
   const [open, setOpen] = useState(false);
@@ -107,6 +116,9 @@ export default function ResultsPage() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
   const [results, setResults] = useState<ScoringResult | null>(null);
+  const [aiResults, setAiResults] = useState<ScoringResult | null>(null);
+  const [useAiScoring, setUseAiScoring] = useState(false);
+  const [aiScoringLoading, setAiScoringLoading] = useState(false);
   const [targetCountry, setTargetCountry] = useState('');
   const [aiInsights, setAiInsights] = useState<{ qualification: string; risks: string } | null>(null);
   const [insightsLoading, setInsightsLoading] = useState(false);
@@ -132,6 +144,65 @@ export default function ResultsPage() {
         .catch(() => {})
         .finally(() => setInsightsLoading(false));
     }
+
+    // Fetch AI scores
+    setAiScoringLoading(true);
+    fetch(`${BASE}/api/ai/score`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        assessment: data,
+        visas: visas.map(v => ({ id: v.id, name: v.name, country: v.country, requirements: v.requirements, sponsorshipRequired: v.sponsorshipRequired })),
+      }),
+    })
+      .then(r => r.json())
+      .then((aiScores: Array<{ id: string; score: number; category: string; strengths: string[]; weaknesses: string[]; improvements: string[]; missingRequirements: string[]; explanation: string }>) => {
+        const scoredVisas: VisaScore[] = visas.map(visa => {
+          const ai = aiScores.find(s => s.id === visa.id);
+          const score = ai?.score ?? 0;
+          return {
+            visa,
+            score,
+            category: ai?.category ?? categoryFromScore(score),
+            strengths: ai?.strengths ?? [],
+            weaknesses: ai?.weaknesses ?? [],
+            improvements: ai?.improvements ?? [],
+            missingRequirements: ai?.missingRequirements ?? [],
+            explanation: ai?.explanation ?? '',
+            isTargetCountry: scored.all.find(s => s.visa.id === visa.id)?.isTargetCountry ?? false,
+          };
+        });
+
+        const targetVisas = scoredVisas.filter(v => v.isTargetCountry).sort((a, b) => b.score - a.score);
+        const altMap = new Map<string, VisaScore>();
+        for (const r of scoredVisas) {
+          if (r.isTargetCountry) continue;
+          const key = r.visa.countryKey;
+          const prev = altMap.get(key);
+          if (!prev || r.score > prev.score) altMap.set(key, r);
+        }
+        const targetBestScore = targetVisas[0]?.score ?? 0;
+        const alternativeCountries = [...altMap.values()]
+          .filter(r => r.score > targetBestScore)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 4)
+          .map(r => ({ country: r.visa.country, flag: r.visa.flag, topScore: r.score, topVisa: r }));
+        const topMatches = [...targetVisas.slice(0, 2), ...alternativeCountries.slice(0, 2).map(ac => ac.topVisa)].slice(0, 4);
+        const primary = targetVisas[0] ?? scoredVisas.sort((a, b) => b.score - a.score)[0];
+
+        setAiResults({
+          targetCountryVisas: targetVisas,
+          alternativeCountries,
+          topMatches,
+          overallScore: primary?.score ?? 0,
+          overallCategory: primary?.category ?? 'Weak Match',
+          strengths: primary?.strengths ?? [],
+          weaknesses: primary?.weaknesses ?? [],
+          improvements: primary?.improvements ?? [],
+        });
+      })
+      .catch(() => {})
+      .finally(() => setAiScoringLoading(false));
   }, [navigate]);
 
   useEffect(() => {
@@ -143,8 +214,10 @@ export default function ResultsPage() {
 
   if (!results) return null;
 
-  const offset = 452 - (452 * results.overallScore / 100);
-  const hasAlts = results.alternativeCountries.length > 0;
+  const display = useAiScoring && aiResults ? aiResults : results;
+  const offset = 452 - (452 * display.overallScore / 100);
+  const hasAlts = display.alternativeCountries.length > 0;
+  const aiReady = aiResults && !aiScoringLoading;
 
   return (
     <div className="relative min-h-screen flex flex-col bg-[#f8f6ff]">
@@ -162,6 +235,26 @@ export default function ResultsPage() {
           </p>
         </div>
 
+        {/* Scoring engine toggle */}
+        <div className="flex justify-center mb-10">
+          <div className="glass-card inline-flex items-center gap-3 px-4 py-2 rounded-full">
+            <span className="text-xs font-mono text-indigo-950/60">Scoring engine:</span>
+            <button
+              onClick={() => setUseAiScoring(false)}
+              className={`text-xs font-bold font-mono uppercase tracking-widest px-3 py-1 rounded-full transition-all ${!useAiScoring ? 'bg-indigo-bloom text-white' : 'text-indigo-bloom/60 hover:bg-indigo-bloom/10'}`}
+            >
+              Rule-based
+            </button>
+            <button
+              onClick={() => setUseAiScoring(true)}
+              className={`text-xs font-bold font-mono uppercase tracking-widest px-3 py-1 rounded-full transition-all flex items-center gap-1 ${useAiScoring ? 'bg-neon-pink text-white' : 'text-indigo-bloom/60 hover:bg-neon-pink/10'}`}
+            >
+              {aiScoringLoading && !aiReady && <span className="inline-block w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" />}
+              <Icon icon="lucide:sparkles" /> AI Gemini
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           {/* Left column — score card */}
@@ -169,6 +262,7 @@ export default function ResultsPage() {
             <div className="glass-card p-10 flex flex-col items-center text-center">
               <div className="text-sm font-mono text-indigo-bloom/70 uppercase tracking-widest mb-6">
                 {targetCountry ? `${targetCountry} Eligibility` : 'Overall Eligibility Score'}
+                {useAiScoring && <span className="block text-[10px] text-neon-pink mt-1">AI calculated</span>}
               </div>
               <div className="relative flex flex-col items-center justify-center mb-6">
                 <svg className="w-48 h-48 transform -rotate-90">
@@ -181,20 +275,20 @@ export default function ResultsPage() {
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-5xl font-space font-bold">{results.overallScore}%</span>
+                  <span className="text-5xl font-space font-bold">{display.overallScore}%</span>
                 </div>
               </div>
               <div className="bg-neon-pink/10 text-neon-pink px-4 py-1.5 rounded-full font-bold uppercase tracking-wider text-sm mb-4">
-                {results.overallCategory}
+                {display.overallCategory}
               </div>
-              {targetCountry && results.targetCountryVisas.length === 0 && (
+              {targetCountry && display.targetCountryVisas.length === 0 && (
                 <p className="text-xs text-amber-600 font-mono text-center">
                   No visa pathways found for {targetCountry}. Showing closest alternatives.
                 </p>
               )}
-              {targetCountry && results.targetCountryVisas.length > 0 && (
+              {targetCountry && display.targetCountryVisas.length > 0 && (
                 <p className="text-indigo-950/60 text-sm">
-                  Your strongest match for {targetCountry} is the <span className="font-semibold">{results.targetCountryVisas[0].visa.name}</span>.
+                  Your strongest match for {targetCountry} is the <span className="font-semibold">{display.targetCountryVisas[0].visa.name}</span>.
                 </p>
               )}
             </div>
@@ -249,7 +343,7 @@ export default function ResultsPage() {
           <div className="lg:col-span-2 flex flex-col gap-8">
 
             {/* TARGET COUNTRY section */}
-            {results.targetCountryVisas.length > 0 && (
+            {display.targetCountryVisas.length > 0 && (
               <div>
                 <div className="flex items-center gap-3 mb-4">
                   <h2 className="text-2xl font-space font-bold text-[#1a0f2e]">
@@ -260,7 +354,7 @@ export default function ResultsPage() {
                   </span>
                 </div>
                 <div className="flex flex-col gap-4">
-                  {results.targetCountryVisas.map((match, i) => (
+                  {display.targetCountryVisas.map((match, i) => (
                     <VisaCard key={match.visa.id} match={match} rank={i} />
                   ))}
                 </div>
@@ -274,8 +368,8 @@ export default function ResultsPage() {
                   <Icon icon="lucide:check-circle" /> Profile Strengths
                 </h3>
                 <ul className="space-y-3">
-                  {results.strengths.length > 0
-                    ? results.strengths.map((s, i) => (
+                  {display.strengths.length > 0
+                    ? display.strengths.map((s, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-indigo-950/80">
                           <Icon icon="lucide:arrow-right" className="text-green-500 shrink-0 mt-0.5" /> {s}
                         </li>
@@ -289,7 +383,7 @@ export default function ResultsPage() {
                   <Icon icon="lucide:trending-up" /> How to Improve
                 </h3>
                 <ul className="space-y-3">
-                  {results.improvements.map((s, i) => (
+                  {display.improvements.map((s, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-indigo-950/80">
                       <Icon icon="lucide:arrow-up-right" className="text-blue-500 shrink-0 mt-0.5" /> {s}
                     </li>
@@ -298,7 +392,7 @@ export default function ResultsPage() {
               </div>
             </div>
 
-            {/* ALTERNATIVE COUNTRIES section — only if they score higher */}
+            {/* ALTERNATIVE COUNTRIES section */}
             {hasAlts && (
               <div>
                 <div className="flex items-center gap-3 mb-4">
@@ -313,7 +407,7 @@ export default function ResultsPage() {
                   Your profile scores higher for these destinations. They are shown as alternatives — your target remains {targetCountry}.
                 </p>
                 <div className="flex flex-col gap-4">
-                  {results.alternativeCountries.map(alt => (
+                  {display.alternativeCountries.map(alt => (
                     <VisaCard key={alt.topVisa.visa.id} match={alt.topVisa} />
                   ))}
                 </div>

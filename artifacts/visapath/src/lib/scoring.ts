@@ -44,6 +44,7 @@ export type ScoringResult = {
   strengths: string[];
   weaknesses: string[];
   improvements: string[];
+  all: VisaScore[];
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -104,32 +105,32 @@ type VisaCfg = {
 };
 
 const VISA_CFG: Record<string, VisaCfg> = {
-  'h1b':           { eduWeight: 1.0, expWeight: 1.1, engWeight: 1.6, ageWeight: 0.8, jobBonus: 18, noJobPenalty: 25, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'o1a':           { eduWeight: 1.0, expWeight: 1.5, engWeight: 1.4, ageWeight: 0.7, jobBonus: 8,  noJobPenalty: 5,  sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'eb2niw':        { eduWeight: 1.6, expWeight: 1.3, engWeight: 1.2, ageWeight: 0.7, jobBonus: 5,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 25 },
-  'canada-ee':     { eduWeight: 1.1, expWeight: 1.1, engWeight: 1.7, ageWeight: 1.5, jobBonus: 10, noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 25 },
-  'canada-pnp':    { eduWeight: 1.0, expWeight: 1.2, engWeight: 1.4, ageWeight: 1.2, jobBonus: 12, noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 25 },
-  'uk-sw':         { eduWeight: 0.9, expWeight: 1.1, engWeight: 1.6, ageWeight: 0.8, jobBonus: 20, noJobPenalty: 22, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'uk-gt':         { eduWeight: 1.2, expWeight: 1.6, engWeight: 1.5, ageWeight: 0.7, jobBonus: 5,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 25 },
-  'australia-189': { eduWeight: 1.2, expWeight: 1.3, engWeight: 1.5, ageWeight: 1.4, jobBonus: 8,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 25 },
-  'australia-186': { eduWeight: 1.0, expWeight: 1.3, engWeight: 1.3, ageWeight: 1.3, jobBonus: 20, noJobPenalty: 20, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'germany-oc':    { eduWeight: 1.5, expWeight: 1.4, engWeight: 0.9, ageWeight: 1.0, jobBonus: 8,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 25 },
-  'germany-ebc':   { eduWeight: 1.4, expWeight: 1.4, engWeight: 1.0, ageWeight: 0.9, jobBonus: 18, noJobPenalty: 20, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'japan-engineer':{ eduWeight: 1.3, expWeight: 1.2, engWeight: 0.5, ageWeight: 0.9, jobBonus: 18, noJobPenalty: 22, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'japan-hsp':     { eduWeight: 1.5, expWeight: 1.4, engWeight: 0.6, ageWeight: 0.9, jobBonus: 14, noJobPenalty: 18, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'japan-startup': { eduWeight: 1.0, expWeight: 1.3, engWeight: 0.5, ageWeight: 0.9, jobBonus: 0,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 25 },
-  'sk-e7':         { eduWeight: 1.2, expWeight: 1.3, engWeight: 0.7, ageWeight: 0.9, jobBonus: 18, noJobPenalty: 22, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'sk-d10':        { eduWeight: 1.3, expWeight: 1.0, engWeight: 0.7, ageWeight: 1.0, jobBonus: 5,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 25 },
-  'sg-ep':         { eduWeight: 1.3, expWeight: 1.2, engWeight: 1.5, ageWeight: 0.8, jobBonus: 20, noJobPenalty: 22, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'sg-techpass':   { eduWeight: 1.0, expWeight: 1.7, engWeight: 1.4, ageWeight: 0.7, jobBonus: 5,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 25 },
-  'nz-skilled':    { eduWeight: 1.1, expWeight: 1.2, engWeight: 1.5, ageWeight: 1.3, jobBonus: 10, noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 25 },
-  'nz-aewv':       { eduWeight: 0.9, expWeight: 1.2, engWeight: 1.3, ageWeight: 0.9, jobBonus: 20, noJobPenalty: 20, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'france-tp':     { eduWeight: 1.5, expWeight: 1.3, engWeight: 0.8, ageWeight: 0.9, jobBonus: 10, noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 25 },
-  'nl-hsm':        { eduWeight: 1.2, expWeight: 1.3, engWeight: 1.3, ageWeight: 0.8, jobBonus: 20, noJobPenalty: 22, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'ireland-csp':   { eduWeight: 1.1, expWeight: 1.2, engWeight: 1.6, ageWeight: 0.8, jobBonus: 20, noJobPenalty: 22, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'sweden-wp':     { eduWeight: 1.0, expWeight: 1.2, engWeight: 1.2, ageWeight: 0.8, jobBonus: 20, noJobPenalty: 22, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'norway-sw':     { eduWeight: 1.1, expWeight: 1.2, engWeight: 1.2, ageWeight: 0.8, jobBonus: 20, noJobPenalty: 22, sponsorRequired: true,  countryAlignmentBonus: 25 },
-  'ch-b-permit':   { eduWeight: 1.3, expWeight: 1.3, engWeight: 1.1, ageWeight: 0.8, jobBonus: 20, noJobPenalty: 22, sponsorRequired: true,  countryAlignmentBonus: 25 },
+  'h1b':           { eduWeight: 1.0, expWeight: 1.1, engWeight: 1.6, ageWeight: 0.8, jobBonus: 12, noJobPenalty: 22, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'o1a':           { eduWeight: 1.0, expWeight: 1.5, engWeight: 1.4, ageWeight: 0.7, jobBonus: 5,  noJobPenalty: 0,  sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'eb2niw':        { eduWeight: 1.6, expWeight: 1.3, engWeight: 1.2, ageWeight: 0.7, jobBonus: 3,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 10 },
+  'canada-ee':     { eduWeight: 1.1, expWeight: 1.1, engWeight: 1.7, ageWeight: 1.5, jobBonus: 6,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 10 },
+  'canada-pnp':    { eduWeight: 1.0, expWeight: 1.2, engWeight: 1.4, ageWeight: 1.2, jobBonus: 8,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 10 },
+  'uk-sw':         { eduWeight: 0.9, expWeight: 1.1, engWeight: 1.6, ageWeight: 0.8, jobBonus: 14, noJobPenalty: 18, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'uk-gt':         { eduWeight: 1.2, expWeight: 1.6, engWeight: 1.5, ageWeight: 0.7, jobBonus: 3,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 10 },
+  'australia-189': { eduWeight: 1.2, expWeight: 1.3, engWeight: 1.5, ageWeight: 1.4, jobBonus: 5,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 10 },
+  'australia-186': { eduWeight: 1.0, expWeight: 1.3, engWeight: 1.3, ageWeight: 1.3, jobBonus: 14, noJobPenalty: 16, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'germany-oc':    { eduWeight: 1.5, expWeight: 1.4, engWeight: 0.9, ageWeight: 1.0, jobBonus: 5,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 10 },
+  'germany-ebc':   { eduWeight: 1.4, expWeight: 1.4, engWeight: 1.0, ageWeight: 0.9, jobBonus: 12, noJobPenalty: 18, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'japan-engineer':{ eduWeight: 1.3, expWeight: 1.2, engWeight: 0.5, ageWeight: 0.9, jobBonus: 12, noJobPenalty: 18, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'japan-hsp':     { eduWeight: 1.5, expWeight: 1.4, engWeight: 0.6, ageWeight: 0.9, jobBonus: 10, noJobPenalty: 14, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'japan-startup': { eduWeight: 1.0, expWeight: 1.3, engWeight: 0.5, ageWeight: 0.9, jobBonus: 0,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 10 },
+  'sk-e7':         { eduWeight: 1.2, expWeight: 1.3, engWeight: 0.7, ageWeight: 0.9, jobBonus: 12, noJobPenalty: 18, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'sk-d10':        { eduWeight: 1.3, expWeight: 1.0, engWeight: 0.7, ageWeight: 1.0, jobBonus: 3,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 10 },
+  'sg-ep':         { eduWeight: 1.3, expWeight: 1.2, engWeight: 1.5, ageWeight: 0.8, jobBonus: 14, noJobPenalty: 18, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'sg-techpass':   { eduWeight: 1.0, expWeight: 1.7, engWeight: 1.4, ageWeight: 0.7, jobBonus: 3,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 10 },
+  'nz-skilled':    { eduWeight: 1.1, expWeight: 1.2, engWeight: 1.5, ageWeight: 1.3, jobBonus: 6,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 10 },
+  'nz-aewv':       { eduWeight: 0.9, expWeight: 1.2, engWeight: 1.3, ageWeight: 0.9, jobBonus: 14, noJobPenalty: 16, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'france-tp':     { eduWeight: 1.5, expWeight: 1.3, engWeight: 0.8, ageWeight: 0.9, jobBonus: 6,  noJobPenalty: 0,  sponsorRequired: false, countryAlignmentBonus: 10 },
+  'nl-hsm':        { eduWeight: 1.2, expWeight: 1.3, engWeight: 1.3, ageWeight: 0.8, jobBonus: 14, noJobPenalty: 18, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'ireland-csp':   { eduWeight: 1.1, expWeight: 1.2, engWeight: 1.6, ageWeight: 0.8, jobBonus: 14, noJobPenalty: 18, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'sweden-wp':     { eduWeight: 1.0, expWeight: 1.2, engWeight: 1.2, ageWeight: 0.8, jobBonus: 14, noJobPenalty: 18, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'norway-sw':     { eduWeight: 1.1, expWeight: 1.2, engWeight: 1.2, ageWeight: 0.8, jobBonus: 14, noJobPenalty: 18, sponsorRequired: true,  countryAlignmentBonus: 10 },
+  'ch-b-permit':   { eduWeight: 1.3, expWeight: 1.3, engWeight: 1.1, ageWeight: 0.8, jobBonus: 14, noJobPenalty: 18, sponsorRequired: true,  countryAlignmentBonus: 10 },
 };
 
 function defaultCfg(): VisaCfg {
@@ -479,5 +480,6 @@ export function calculateScores(assessment: Assessment): ScoringResult {
     strengths: primary?.strengths ?? [],
     weaknesses: primary?.weaknesses ?? [],
     improvements: primary?.improvements ?? [],
+    all,
   };
 }

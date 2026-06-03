@@ -3,6 +3,130 @@ import { ai } from "@workspace/integrations-gemini-ai";
 
 const router = Router();
 
+function safeJsonParse(text: string): unknown {
+  if (!text) return null;
+  const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  const candidate = jsonMatch ? jsonMatch[1].trim() : text.trim();
+  const firstBrace = candidate.indexOf("{");
+  const firstBracket = candidate.indexOf("[");
+  let start = -1;
+  if (firstBrace !== -1 && firstBracket !== -1) start = Math.min(firstBrace, firstBracket);
+  else if (firstBrace !== -1) start = firstBrace;
+  else if (firstBracket !== -1) start = firstBracket;
+  if (start === -1) return null;
+  let jsonCandidate = candidate.slice(start);
+  // Find matching end brace/bracket by naive counting
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  const opener = jsonCandidate[0];
+  const closer = opener === "{" ? "}" : "]";
+  let endIndex = -1;
+  for (let i = 0; i < jsonCandidate.length; i++) {
+    const ch = jsonCandidate[i];
+    if (escape) { escape = false; continue; }
+    if (ch === "\\" && inString) { escape = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === opener) depth++;
+    else if (ch === closer) { depth--; if (depth === 0) { endIndex = i; break; } }
+  }
+  let trimmed = endIndex !== -1 ? jsonCandidate.slice(0, endIndex + 1) : jsonCandidate;
+  // Try to fix common model-generated JSON errors: stray unquoted tokens inside arrays
+  // e.g. ["a", "b" manures] -> ["a", "b"]
+  // e.g. ["a", "b",] -> ["a", "b"]
+  trimmed = trimmed
+    .replace(/"\s*,?\s*\n\s*[^"\s\[\]{}:,\-\d][^\s\[\]{}:,]*\s*\]/g, '"]')  // stray token before ]
+    .replace(/,\s*]/g, ']')   // trailing comma
+    .replace(/,\s*}/g, '}');  // trailing comma in object
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return null;
+  }
+}
+
+router.post("/ai/score", async (req, res) => {
+  try {
+    const { assessment, visas } = req.body as {
+      assessment: Record<string, unknown>;
+      visas: Array<{
+        id: string;
+        name: string;
+        country: string;
+        requirements: string[];
+        sponsorshipRequired: boolean;
+      }>;
+    };
+
+    const specificAnswers = assessment.specificAnswers
+      ? Object.entries(assessment.specificAnswers as Record<string, string>)
+          .map(([k, v]) => `  - ${k}: ${v}`)
+          .join("\n")
+      : "None provided";
+
+    const visaList = visas
+      .map(
+        (v, i) =>
+          `${i + 1}. ${v.name} (${v.country}) \u2014 ID: ${v.id}\n     Sponsorship required: ${v.sponsorshipRequired}\n     Requirements: ${v.requirements.join("; ")}`,
+      )
+      .join("\n");
+
+    const prompt = `You are an expert immigration eligibility scoring system. You have helped thousands of applicants and your scores are accurate, realistic, and grounded in real visa requirements.
+
+Score this user against EVERY visa below. Return a score from 0\u2013100 for each, where 0 = completely ineligible, 50 = meets basic requirements but has gaps, 75 = strong candidate, 90+ = virtually guaranteed approval.
+
+Be STRICT and realistic. Most people score 45\u201375. Only award 80+ for truly exceptional profiles.
+
+USER PROFILE:
+- Immigration goal: ${assessment.immigrationGoal ?? "Not specified"}
+- Nationality: ${assessment.nationality}
+- Currently living in: ${assessment.currentCountry}
+- Target country: ${assessment.targetCountry}
+- Age: ${assessment.age}
+- Education: ${assessment.degree}${assessment.fieldOfStudy ? ` in ${assessment.fieldOfStudy}` : ""}
+- Work experience: ${assessment.workExperience} years
+- English proficiency: ${assessment.englishScore}
+- Target language level: ${assessment.targetLanguageLevel ?? "Not provided"}
+- Job offer status: ${assessment.jobOffer}
+- Travel history: ${Array.isArray(assessment.travelHistory) ? (assessment.travelHistory as string[]).join(", ") || "None" : "None"}
+- Country-specific answers:
+${specificAnswers}
+
+VISAS TO SCORE:
+${visaList}
+
+Respond ONLY with a valid JSON array (no markdown, no code fences, no extra text). Each item must have:
+{
+  "id": "visa-id",
+  "score": number (0-100),
+  "category": "Excellent Match" | "Strong Match" | "Moderate Match" | "Developing Match" | "Weak Match",
+  "strengths": ["string", "string"],
+  "weaknesses": ["string", "string"],
+  "improvements": ["string"],
+  "missingRequirements": ["string"],
+  "explanation": "2-3 sentences explaining why they got this score"
+}`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: { maxOutputTokens: 8192 },
+    });
+
+    const text = response.text ?? "[]";
+    const parsed = safeJsonParse(text);
+    if (!parsed || !Array.isArray(parsed)) {
+      req.log.error({ text }, "AI score returned invalid JSON");
+      return res.status(500).json({ error: "Failed to generate AI scores" });
+    }
+    res.json(parsed);
+  } catch (err) {
+    req.log.error({ err }, "AI score error");
+    res.status(500).json({ error: "Failed to generate AI scores" });
+  }
+});
+
 router.post("/ai/analyze", async (req, res) => {
   try {
     const { assessment, visaId, visaName, visaCountry, score } = req.body as {
@@ -53,8 +177,11 @@ Respond ONLY with a valid JSON object (no markdown, no code fences, no extra tex
     });
 
     const text = response.text ?? "{}";
-    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = safeJsonParse(text);
+    if (!parsed || typeof parsed !== "object") {
+      req.log.error({ text }, "AI analyze returned invalid JSON");
+      return res.status(500).json({ error: "Failed to generate analysis" });
+    }
     res.json(parsed);
   } catch (err) {
     req.log.error({ err }, "AI analyze error");
@@ -106,8 +233,11 @@ Respond ONLY with valid JSON (no markdown, no code fences, no extra text):
     });
 
     const text = response.text ?? "{}";
-    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = safeJsonParse(text);
+    if (!parsed || typeof parsed !== "object") {
+      req.log.error({ text }, "AI questions returned invalid JSON");
+      return res.status(500).json({ error: "Failed to generate questions" });
+    }
     res.json(parsed);
   } catch (err) {
     req.log.error({ err }, "AI questions error");
@@ -171,8 +301,11 @@ Respond ONLY with valid JSON (no markdown, no code fences, no extra text):
     });
 
     const text = response.text ?? "{}";
-    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = safeJsonParse(text);
+    if (!parsed || typeof parsed !== "object") {
+      req.log.error({ text }, "AI roadmap returned invalid JSON");
+      return res.status(500).json({ error: "Failed to generate roadmap" });
+    }
     res.json(parsed);
   } catch (err) {
     req.log.error({ err }, "AI roadmap error");
@@ -217,8 +350,11 @@ Respond ONLY with valid JSON (no markdown, no code fences, no extra text):
     });
 
     const text = response.text ?? "{}";
-    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = safeJsonParse(text);
+    if (!parsed || typeof parsed !== "object") {
+      req.log.error({ text }, "AI pricing returned invalid JSON");
+      return res.status(500).json({ error: "Failed to generate pricing" });
+    }
     res.json(parsed);
   } catch (err) {
     req.log.error({ err }, "AI pricing error");
