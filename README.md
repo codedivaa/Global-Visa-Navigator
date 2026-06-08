@@ -1,839 +1,258 @@
-# VisaPath AI
+<div align="center">
 
-> **AI-Powered Immigration Intelligence Platform** — Find your best visa path, get realistic eligibility scores, and plan your migration with confidence.
+<h1>
+VisaPath AI
+</h1>
 
-[![Tech Stack](https://img.shields.io/badge/Stack-React%2019%20%7C%20Express%205%20%7C%20Gemini%20AI%20%7C%20Supabase-blue)]()
-[![Language](https://img.shields.io/badge/100%25-TypeScript-blue)]()
-[![License](https://img.shields.io/badge/License-MIT-green)]()
+<p>
+<strong>AI-Powered Immigration Intelligence Platform</strong>
+</p>
 
----
+<p>
+Find your best visa path. Get realistic scores. Plan with confidence.
+</p>
 
-## Table of Contents
+<p>
+  <img src="https://img.shields.io/badge/TypeScript-100%25-blue?logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" />
+  <img src="https://img.shields.io/badge/Express-5-black?logo=express&logoColor=white" />
+  <img src="https://img.shields.io/badge/Gemini-AI-orange?logo=google&logoColor=white" />
+  <img src="https://img.shields.io/badge/Supabase-DB-3ECF8E?logo=supabase&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-green" />
+</p>
 
-1. [Overview](#overview)
-2. [What Problems It Solves](#what-problems-it-solves)
-3. [Key Features](#key-features)
-   - [Assessment Wizard](#assessment-wizard)
-   - [Dual Scoring Engine](#dual-scoring-engine)
-   - [Immigration Intelligence Report](#immigration-intelligence-report)
-   - [AI Immigration Advisor](#ai-immigration-advisor)
-   - [Personalized Roadmaps](#personalized-roadmaps)
-   - [User Authentication & History](#user-authentication--history)
-4. [Architecture](#architecture)
-   - [System Diagram](#system-diagram)
-   - [Monorepo Structure](#monorepo-structure)
-   - [Data Flow](#data-flow)
-5. [Tech Stack](#tech-stack)
-   - [Frontend](#frontend)
-   - [Backend](#backend)
-   - [AI & Data](#ai--data)
-   - [DevOps](#devops)
-6. [API Reference](#api-reference)
-7. [Database Schema](#database-schema)
-8. [How to Run](#how-to-run)
-9. [Project Structure](#project-structure)
-10. [Design Decisions](#design-decisions)
-11. [Future Roadmap](#future-roadmap)
-12. [Screenshots](#screenshots)
-13. [License](#license)
-14. [Credits](#credits)
+<p>
+<a href="#features">Features</a> ·
+<a href="#demo">Demo</a> ·
+<a href="#architecture">Architecture</a> ·
+<a href="#tech-stack">Stack</a> ·
+<a href="#api">API</a> ·
+<a href="#setup">Setup</a>
+</p>
+
+</div>
 
 ---
 
-## Overview
+## What It Does
 
-VisaPath AI is a full-stack immigration intelligence platform that helps users worldwide discover their best visa pathways, receive realistic eligibility scores, get personalized migration roadmaps, and chat with an AI-powered immigration advisor.
+VisaPath AI helps **280+ million international migrants** worldwide figure out their best visa pathway.
 
-The platform covers **25 visa pathways across 15 countries** including USA, Canada, UK, Australia, Germany, Japan, South Korea, Singapore, New Zealand, France, Netherlands, Ireland, Sweden, Norway, and Switzerland.
+You answer a **10-step questionnaire** and get scored against **25 visa pathways across 15 countries** with a personalized roadmap and AI-powered guidance.
 
-**Built with 100% TypeScript** — no Python, no Java, no C, no plain HTML/CSS. Every single file is `.ts` or `.tsx`.
+**The problem with other calculators:** They give you **80-100% for everything** using naive point systems. VisaPath AI fixes this with a **dual scoring engine** — rule-based for speed + AI for realism — so you see actual barriers like H-1B lottery odds, nationality backlogs, and evidence requirements.
 
----
-
-## What Problems It Solves
-
-### 1. Information Overload
-Immigration involves 190+ countries, thousands of visa categories, and constantly changing requirements. Applicants spend weeks researching scattered government websites, forums, and consultants. VisaPath AI distills all this into a single, personalized assessment that takes minutes, not weeks.
-
-### 2. Unrealistic Self-Assessment
-Most free online calculators use naive point systems that give inflated scores (80-100% for almost everyone) because they:
-- Ignore real-world barriers (H-1B lottery odds, nationality backlogs)
-- Don't weight requirements by actual difficulty
-- Use flat country bonuses that don't reflect real eligibility
-
-**VisaPath AI's solution:** A **dual scoring engine** — rule-based for speed, AI-powered for realism. The AI engine (Gemini 2.5 Flash) evaluates real-world barriers like lottery caps, nationality-based wait times, and evidence requirements.
-
-**Example:** An Indian applicant with a Master's in CS and 5 years experience:
+**Example:** Indian applicant, Master's in CS, 5 years experience:
 - **Naive calculator:** 85% for H-1B
-- **VisaPath AI:** 68% (Moderate Match) — because the model knows the Indian H-1B lottery has ~25% selection odds
-
-### 3. No Personalized Guidance
-Generic advice like "improve your English" or "get a degree" doesn't help someone who already has a Master's and advanced English. VisaPath AI:
-- Generates **AI-tailored follow-up questions** based on your specific country + goal combination
-- Provides **per-visa improvement tips** specific to your profile
-- Creates **personalized roadmaps** with exact steps and timelines
-
-### 4. Fragmented Planning
-Documents, timelines, costs, and steps are scattered across government sites, immigration forums, and consultant notes. VisaPath AI consolidates everything into one intelligent dashboard:
-- Document checklists with completion tracking
-- AI-generated cost breakdowns in local currency
-- Step-by-step timelines with realistic time estimates
-- Priority document suggestions from the AI advisor
+- **VisaPath AI:** 68% (Moderate Match) — because the AI knows the Indian H-1B lottery has ~25% selection odds
 
 ---
 
-## Key Features
+## Features
 
-### Assessment Wizard
+### 10-Step Assessment Wizard
 
-A **10-step multi-stage questionnaire** that captures every dimension of an immigration profile:
+A guided questionnaire covering:
 
-| Step | Field | Details |
-|------|-------|---------|
-| 1 | **Immigration Goal** | Study, Work, Skilled Migration, Startup/Business, Permanent Residency, Family Sponsorship |
-| 2 | **Nationality** | 200+ countries with flag support |
-| 3 | **Current Country** | Where you currently live |
-| 4 | **Target Country** | Where you want to move |
-| 5 | **Age** | Numeric input |
-| 6 | **Education** | Degree level + field of study |
-| 7 | **Work Experience** | Years of full-time professional experience |
-| 8 | **Language Skills** | English proficiency + target country language level |
-| 9 | **AI Questions** | 2 personalized questions generated by Gemini based on your profile |
-| 10 | **Job Offer & Travel** | Employment status + travel history |
-
-**Key innovation:** Step 9 calls `/api/ai/questions` which generates context-aware questions. For example:
-- **Target: Germany + Goal: Work** → "Do you have a degree recognized in the German anabin database?"
-- **Target: USA + Goal: Work** → "Does your employer have experience filing H-1B petitions?"
-- **Target: Canada + Goal: Skilled Migration** → "Have you obtained an Educational Credential Assessment (ECA)?"
+- Immigration goal (Study, Work, Skilled Migration, Startup, PR, Family)
+- Nationality & current country
+- Target country
+- Age, education, work experience
+- Language proficiency
+- **AI-generated personalized questions** (Step 9 — Gemini creates questions based on your exact country + goal combination)
+- Job offer & travel history
 
 ### Dual Scoring Engine
 
-Two independent scoring systems that users can toggle between:
+Two engines. One toggle. You choose which scores to see.
 
-#### Rule-Based Engine
-- **Fast** — runs entirely client-side, instant results
-- **Deterministic** — same inputs always produce same scores
-- **Visa-specific weights** — each of the 25 visas has custom weights for:
-  - Education (degreePoints: PhD=20, Master's=16, Bachelor's=12)
-  - Experience (expPoints: 10+ years=20, 7-9=17, 5-6=15, 3-4=12, 1-2=8, 0=4)
-  - Language (englishScore, targetLanguageLevel)
-  - Age (ageWeight per visa)
-  - Job offer (jobBonus / noJobPenalty per visa)
-  - Country alignment (countryAlignmentBonus)
+**Rule-Based Engine**
+- Instant, client-side scoring
+- Visa-specific weights for education, experience, language, age, job offer
+- Deterministic — same inputs always give same scores
 
-#### AI Gemini Engine
-- **Realistic** — considers real-world barriers calculators miss
-- **Context-aware** — evaluates nationality-specific challenges (e.g., Indian H-1B lottery, Chinese EB-2 backlog)
-- **Detailed explanations** — every score comes with 2-3 sentences explaining why
-- **Strengths/weaknesses** — per-visa breakdown of what you have and what's missing
-- **Improvement suggestions** — actionable steps to increase your score
-
-**Toggle UI:** A glass-card toggle bar on the Results page lets users switch between "Rule-based" and "AI Gemini" with one click. The overall score gauge, visa cards, and analysis panels all update instantly.
+**AI Gemini Engine**
+- Gemini 2.5 Flash evaluates real-world barriers
+- Considers nationality-specific challenges (lottery caps, backlogs, evidence requirements)
+- Every score includes detailed explanation, strengths, weaknesses, and improvements
 
 ### Immigration Intelligence Report
 
-The Results page (`/results`) is the core output of the platform:
-
-#### Overall Score Gauge
-- Animated circular progress gauge with the user's overall eligibility score
-- Category label (Excellent Match / Strong Match / Moderate Match / Developing Match / Weak Match)
-- Color-coded based on score level
-
-#### Per-Visa Score Cards
-Each visa card shows:
-- **Flag + Name** — country flag and visa name
-- **Score** — percentage (0-100%)
-- **Category** — match level
-- **Processing Time** — realistic timeline
-- **Estimated Cost** — in local currency
-- **Sponsorship Required** — badge if employer sponsor needed
-- **Expandable Details** — click to see:
-  - Strengths (why you score this)
-  - Missing Requirements (what you lack)
-  - How to Improve (actionable steps)
-
-#### Alternative Countries
-If the user scores higher for visas in other countries than their target, VisaPath AI shows:
-- "Countries with Stronger Eligibility" section
-- Best visa for each alternative country
-- Score comparison
-- Note that the user's target remains their original choice
-
-#### AI Assessment Panel
-- AI-generated qualification summary (why you qualify)
-- Key risks and red flags
-- Auto-generated after results load
+- Animated score gauge with category label
+- Per-visa cards: score, processing time, cost, sponsorship info
+- Expandable details: strengths, missing requirements, improvement tips
+- Alternative countries where you score higher than your target
+- AI-generated qualification analysis and risk assessment
 
 ### AI Immigration Advisor
 
-A real-time streaming chat interface (`/advisor`) powered by Gemini 2.5 Flash:
+Real-time streaming chat with Gemini.
 
-#### Features
-- **Streaming responses** — SSE (Server-Sent Events) for real-time text generation
-- **Context-aware** — every response uses the user's full profile + top visa match
-- **Priority Documents Sidebar** — AI-generated document list for the top visa
-- **Suggestion Chips** — quick actions:
-  - "How do I improve my score?"
-  - "What is the processing time?"
-  - "Show me the document checklist"
-  - "What are the total costs?"
-  - "How do I find a sponsor?"
-
-#### Chat Persistence
-- Messages saved to Supabase (`advisor_chats` table)
-- Resume chat on return
-- Load existing chat on page mount if user + assessment exist
+- Ask anything about fees, timelines, documents, strategy
+- Priority documents sidebar with AI-generated lists
+- Quick suggestion chips: "Improve my score", "Processing time", "Document checklist"
+- Chat history saved to Supabase
 
 ### Personalized Roadmaps
 
-The Roadmaps page (`/roadmaps`) provides a complete step-by-step plan:
+- 6-step timeline (Month 1-2 through Year 2+)
+- Interactive document checklist with completion tracking
+- AI-generated financial breakdown in local currency
+- 8-12 documents per visa type
 
-#### Timeline View
-- **6 steps** with realistic time ranges:
-  - Month 1-2: Language tests & credential assessment
-  - Month 2-4: Document gathering & employer outreach
-  - Month 4-6: Application submission & biometrics
-  - Month 6-9: Processing & interviews
-  - Month 9-12: Approval & relocation planning
-  - Year 2+: Settlement & permanent residency pathway
+### User Auth & History
 
-#### Document Checklist
-- **Interactive completion tracking** — click to mark documents as obtained
-- **Per-visa lists** — 8-12 documents per visa type
-- **AI-enhanced** — documents list is augmented by the AI advisor
+- Email magic links (passwordless, no passwords to remember)
+- Assessments saved to Supabase PostgreSQL
+- History page to view and resume past assessments
 
-#### Financial Breakdown
-- **Itemized costs** — visa fees, language tests, medical exams, biometrics, insurance
-- **Local currency** — costs shown in the target country's currency
-- **Employer-paid indicators** — notes which costs are typically covered by sponsors
-- **AI-generated** — costs are generated by Gemini based on current real-world figures
+---
 
-### User Authentication & History
+## Demo
 
-#### Email Magic Link Authentication
-- **Passwordless** — no passwords to remember or forget
-- **Supabase Auth** — secure, managed authentication
-- **Flow:** Enter email → Receive magic link → Click link → Authenticated
-- **Popover UI** — clean sign-in popover in the navbar
-
-#### Assessment History
-- **Save assessments** to Supabase PostgreSQL
-- **View history** page (`/history`) showing all past assessments
-- **Resume assessments** — click any past assessment to reload and re-run results
-- **Time ago** display — "2h ago", "3d ago", etc.
+| Page | What You See |
+|------|-------------|
+| **Landing** | Animated hero, floating visa cards, eligibility gauge, budget planner |
+| **Assessment** | 10-step wizard with AI-generated personalized questions |
+| **Results** | Toggle between Rule-based / AI Gemini scoring, visa cards, analysis |
+| **Advisor** | Streaming chat with document sidebar and suggestion chips |
+| **Roadmaps** | Timeline, checklist, cost breakdown |
+| **History** | Past assessments with scores and time-ago display |
 
 ---
 
 ## Architecture
 
-### System Diagram
-
 ```
-                    +-----------------------------+
-                    |     User Browser            |
-                    |  (React 19 + Vite 7)        |
-                    +-------------+---------------+
-                                  |
-                                  | HTTPS
-                                  v
-                    +-----------------------------+
-                    |    Replit Proxy Router      |
-                    |  (Path-based routing)       |
-                    +-------------+---------------+
-                                  |
-            +---------------------+---------------------+
-            |                                           |
-            v                                           v
-+-----------------------------+         +-----------------------------+
-|  VisaPath Frontend          |         |  API Server (Express 5)     |
-|  /visapath/*                |         |  /api/*  (Port 8080)        |
-|  - React 19 SPA             |         |  - pino-http logging        |
-|  - Tailwind CSS 4           |         |  - CORS enabled             |
-|  - Wouter routing           |         |  - JSON body parsing        |
-|  - Supabase client          |         |  - Zod validation ready     |
-+-------------+---------------+         +-------------+---------------+
-                          |                           |
-                          |                           |
-              +-----------+-----------+   +-----------+-----------+-----------+
-              |                       |   |                       |           |
-              v                       |   v                       v           v
-    +-------------------+   +-------------------+   +-------------------+   +-------------------+
-    |  Supabase Auth    |   |  Gemini 2.5 Flash |   |  Supabase PostgreSQL|   |  Vercel (Deploy)  |
-    |  (Magic Links)    |   |  (AI Scoring)     |   |  (Persistence)      |   |  (Serverless)     |
-    +-------------------+   +-------------------+   +-------------------+   +-------------------+
+React 19 SPA
+  ↓
+Replit Proxy Router (path-based)
+  ↓
+Express 5 API Server (Port 8080)
+  ↓
+├── Gemini 2.5 Flash — AI scoring, chat, analysis, questions, roadmaps, pricing
+├── Supabase PostgreSQL — persistence (assessments, recommendations, roadmaps, chats)
+└── Supabase Auth — magic link authentication
 ```
 
-### Monorepo Structure
+### Monorepo
 
 ```
 workspace/
 ├── artifacts/
-│   ├── visapath/                    # React 19 frontend
-│   │   ├── src/
-│   │   │   ├── pages/               # Landing, Assessment, Results, Advisor, Roadmaps, History
-│   │   │   ├── components/          # NavBar, AnimatedBackground, CountrySelect, UI primitives
-│   │   │   ├── contexts/            # AuthContext (Supabase auth)
-│   │   │   ├── lib/                 # scoring.ts, db.ts, supabase.ts
-│   │   │   ├── data/                # visas.ts, countries.ts
-│   │   │   ├── types/               # Shared TypeScript types
-│   │   │   ├── App.tsx              # Router setup
-│   │   │   └── main.tsx             # Entry point
-│   │   ├── index.html
-│   │   ├── vite.config.ts
-│   │   └── package.json
-│   │
-│   ├── api-server/                  # Express 5 backend
-│   │   ├── src/
-│   │   │   ├── routes/
-│   │   │   │   ├── ai.ts            # All 6 AI endpoints + safeJsonParse
-│   │   │   │   ├── health.ts        # Health check
-│   │   │   │   └── index.ts         # Route composition
-│   │   │   ├── app.ts              # Express app setup (CORS, pino, JSON)
-│   │   │   ├── index.ts            # Server entry (PORT from env)
-│   │   │   ├── vercel.ts           # Vercel serverless adapter
-│   │   │   └── lib/logger.ts       # Pino logger singleton
-│   │   ├── build.mjs               # esbuild bundler
-│   │   └── package.json
-│   │
-│   └── mockup-sandbox/              # Canvas component preview server
-│
+│   ├── visapath/          # React 19 + Vite 7 + Tailwind 4
+│   └── api-server/        # Express 5 + esbuild + Node 24
 ├── lib/
-│   ├── api-spec/                    # OpenAPI 3.0 spec
-│   │   ├── openapi.yaml
-│   │   └── package.json
-│   │
-│   ├── api-client-react/            # Generated React Query hooks
-│   │   └── src/generated/
-│   │
-│   ├── api-zod/                     # Generated Zod schemas
-│   │   └── src/generated/
-│   │
-│   ├── db/                          # Drizzle ORM schema
-│   │   └── src/
-│   │
-│   └── integrations-gemini-ai/      # Gemini AI client wrapper
-│       └── src/
-│
-├── scripts/                         # Shared utility scripts
-│   └── src/
-│
-├── pnpm-workspace.yaml              # Workspace package discovery
-├── tsconfig.base.json               # Shared strict TS defaults
-├── tsconfig.json                    # Solution file for libs
-└── package.json                     # Root task orchestration
-```
-
-### Data Flow
-
-```
-User completes assessment
-        |
-        v
-+-------------------+
-|  localStorage     |  <-- visapath_assessment (full data)
-|  (client-side)    |  <-- visapath_assessment_id (Supabase UUID)
-+-------------------+
-        |
-        v
-+-------------------+
-|  Results Page     |
-|  - Rule-based     |  <-- calculateScores() (client-side)
-|  - AI Gemini      |  <-- POST /api/ai/score (server-side)
-+-------------------+
-        |
-        v
-+-------------------+
-|  Advisor Page     |
-|  - Streaming chat |  <-- POST /api/ai/chat (SSE)
-+-------------------+
-        |
-        v
-+-------------------+
-|  Roadmaps Page    |
-|  - AI roadmap     |  <-- POST /api/ai/roadmap
-|  - AI pricing     |  <-- POST /api/ai/pricing
-+-------------------+
-        |
-        v
-+-------------------+
-|  Supabase DB      |  <-- Persist if user is authenticated
-|  (assessments,    |
-|   recommendations,|
-|   roadmaps, chats)|
-+-------------------+
+│   ├── api-spec/          # OpenAPI spec
+│   ├── api-client-react/  # Generated React Query hooks
+│   ├── api-zod/           # Generated Zod schemas
+│   ├── db/                # Drizzle ORM schema
+│   └── integrations-gemini-ai/  # Gemini client
+├── scripts/               # Shared utility scripts
+├── pnpm-workspace.yaml    # Workspace discovery
+├── tsconfig.base.json     # Shared TS defaults
+└── package.json           # Root task orchestration
 ```
 
 ---
 
 ## Tech Stack
 
-### Frontend
+**Frontend**
+- React 19, Vite 7, TypeScript 5.9, Tailwind CSS 4
+- wouter (routing), @tanstack/react-query, @supabase/supabase-js
+- Iconify, gsap, Sonner
 
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| React | 19 | UI framework with concurrent features |
-| Vite | 7 | Build tool & dev server (HMR) |
-| TypeScript | 5.9 | Strict type safety |
-| Tailwind CSS | 4 | Utility-first styling with custom design tokens |
-| wouter | 3 | Lightweight routing (~1KB) |
-| @tanstack/react-query | 5 | Server state management |
-| @supabase/supabase-js | 2 | Auth & database client |
-| Iconify | 3 | 150,000+ icons (Lucide, Phosphor, etc.) |
-| gsap | 3 | Animations (chat, scroll, transitions) |
-| Sonner | 1 | Toast notifications |
+**Backend**
+- Express 5, Node.js 24, TypeScript 5.9
+- esbuild, pino-http, pino, Zod, cors
 
-### Backend
+**AI & Data**
+- Gemini 2.5 Flash, Google Gen AI SDK
+- Supabase (PostgreSQL + Auth), Drizzle ORM, Orval
 
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| Express | 5 | HTTP server framework |
-| Node.js | 24 | JavaScript runtime |
-| TypeScript | 5.9 | Strict type safety |
-| esbuild | 0.25 | Ultra-fast bundler (Go-based) |
-| pino-http | 10 | Structured request logging |
-| pino | 9 | High-performance JSON logger |
-| Zod | 4 | Schema validation & type inference |
-| cors | 2 | Cross-origin resource sharing |
-
-### AI & Data
-
-| Technology | Purpose |
-|-----------|---------|
-| Gemini 2.5 Flash | AI scoring, chat, analysis, questions, roadmaps, pricing |
-| Google Gen AI SDK | Official Gemini client |
-| Supabase | PostgreSQL + Auth + Realtime |
-| Drizzle ORM | Type-safe SQL-like ORM |
-| Orval | OpenAPI → React Query + Zod codegen |
-
-### DevOps
-
-| Technology | Purpose |
-|-----------|---------|
-| pnpm | Package manager with workspaces & catalog pins |
-| GitHub Actions | CI/CD pipeline |
-| Vercel | Serverless deployment (with vercel.ts adapter) |
-| Replit | Development environment & proxy routing |
+**DevOps**
+- pnpm workspaces, GitHub Actions, Vercel
 
 ---
 
-## API Reference
+## API
 
-### AI Endpoints
-
-All AI endpoints return JSON and accept `Content-Type: application/json`.
-
-#### POST `/api/ai/score`
-Scores the user against all 25 visa pathways using Gemini AI.
-
-**Request Body:**
-```json
-{
-  "assessment": {
-    "immigrationGoal": "work",
-    "nationality": "India",
-    "currentCountry": "India",
-    "targetCountry": "USA",
-    "age": 28,
-    "degree": "Master's",
-    "fieldOfStudy": "Computer Science",
-    "workExperience": 5,
-    "englishScore": "Advanced",
-    "targetLanguageLevel": "Intermediate",
-    "jobOffer": "I have a job offer",
-    "travelHistory": ["USA", "Canada"],
-    "specificAnswers": {}
-  },
-  "visas": [
-    {
-      "id": "h1b",
-      "name": "H-1B Specialty Occupation",
-      "country": "USA",
-      "requirements": ["Bachelor's+ in specialty field", "US employer sponsor", "Lottery selection", "LCA approved"],
-      "sponsorshipRequired": true
-    }
-  ]
-}
-```
-
-**Response:**
-```json
-[
-  {
-    "id": "h1b",
-    "score": 68,
-    "category": "Moderate Match",
-    "strengths": ["Master's degree meets education requirements", "5 years experience", "Has job offer"],
-    "weaknesses": ["Indian nationality faces high lottery competition", "Lottery selection is uncertain"],
-    "improvements": ["Explore cap-exempt employers", "File for next lottery"],
-    "missingRequirements": [],
-    "explanation": "Your profile meets all core eligibility criteria but faces the H-1B lottery bottleneck..."
-  }
-]
-```
-
-#### POST `/api/ai/analyze`
-Deep qualification analysis for the top visa match.
-
-**Response:**
-```json
-{
-  "qualification": "You qualify because...",
-  "risks": "Main risks include...",
-  "documents": "Passport, degree transcripts, I-129...",
-  "nextSteps": "1. Confirm employer sponsorship..."
-}
-```
-
-#### POST `/api/ai/questions`
-Generates 2 personalized follow-up questions based on profile.
-
-**Response:**
-```json
-{
-  "questions": [
-    {
-      "id": "ai_q1",
-      "question": "Does your employer have experience filing H-1B petitions?",
-      "options": ["Yes, multiple times", "Yes, once", "No, but willing to learn", "Not sure"]
-    }
-  ]
-}
-```
-
-#### POST `/api/ai/roadmap`
-Generates 6-step personalized roadmap.
-
-**Response:**
-```json
-{
-  "steps": [
-    {"month": "Month 1-2", "label": "Language Tests", "detail": "Take IELTS and aim for CLB 9+"}
-  ]
-}
-```
-
-#### POST `/api/ai/pricing`
-Generates cost breakdown for a visa.
-
-**Response:**
-```json
-{
-  "items": [
-    {"item": "Visa Application Fee", "cost": "CAD $1,325"}
-  ],
-  "total": "~CAD $2,700",
-  "note": "Employer typically covers legal fees"
-}
-```
-
-#### POST `/api/ai/chat`
-Streaming AI advisor chat (Server-Sent Events).
-
-**Request:**
-```json
-{
-  "message": "How long does H-1B processing take?",
-  "assessment": { ... },
-  "visaName": "H-1B Specialty Occupation",
-  "visaCountry": "USA",
-  "score": 68
-}
-```
-
-**Response:** SSE stream with `data: {content: "..."}` chunks.
-
-### Health Endpoint
-
-#### GET `/api/healthz`
-Returns `{"status":"ok"}` for health checks.
+| Endpoint | Method | What It Does |
+|----------|--------|-------------|
+| `/api/ai/score` | POST | AI scores user against all 25 visas |
+| `/api/ai/analyze` | POST | Deep qualification analysis for top visa |
+| `/api/ai/questions` | POST | Generate 2 personalized follow-up questions |
+| `/api/ai/roadmap` | POST | Generate 6-step personalized roadmap |
+| `/api/ai/pricing` | POST | Generate cost breakdown |
+| `/api/ai/chat` | POST | Streaming AI advisor chat (SSE) |
+| `/api/healthz` | GET | Health check |
 
 ---
 
-## Database Schema
+## Database
 
-### Supabase Tables
+Four Supabase tables with Row Level Security:
 
-```sql
--- assessments: Stores user assessment data
-CREATE TABLE assessments (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  data JSONB NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-);
-
--- recommendations: Stores AI-generated visa recommendations
-CREATE TABLE recommendations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  assessment_id UUID REFERENCES assessments(id),
-  visa_id TEXT NOT NULL,
-  score INTEGER,
-  category TEXT,
-  strengths JSONB,
-  weaknesses JSONB,
-  improvements JSONB,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-);
-
--- roadmaps: Stores personalized roadmaps
-CREATE TABLE roadmaps (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  assessment_id UUID REFERENCES assessments(id),
-  visa_id TEXT NOT NULL,
-  steps JSONB,
-  documents JSONB,
-  costs JSONB,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-);
-
--- advisor_chats: Stores chat messages
-CREATE TABLE advisor_chats (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  assessment_id UUID REFERENCES assessments(id),
-  messages JSONB,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-);
-```
-
-### Row Level Security (RLS)
-
-```sql
--- Enable RLS on all tables
-ALTER TABLE assessments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE recommendations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE roadmaps ENABLE ROW LEVEL SECURITY;
-ALTER TABLE advisor_chats ENABLE ROW LEVEL SECURITY;
-
--- Users can only see their own data
-CREATE POLICY "Users can only access their own assessments"
-  ON assessments FOR ALL
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can only access their own recommendations"
-  ON recommendations FOR ALL
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can only access their own roadmaps"
-  ON roadmaps FOR ALL
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can only access their own chats"
-  ON advisor_chats FOR ALL
-  USING (auth.uid() = user_id);
-```
+- **assessments** — user profile data (JSONB)
+- **recommendations** — visa scores, strengths, weaknesses (JSONB)
+- **roadmaps** — steps, documents, costs (JSONB)
+- **advisor_chats** — chat messages (JSONB)
 
 ---
 
-## How to Run
+## Setup
 
-### Prerequisites
+**Prerequisites:** Node.js 24+, pnpm 10+, Supabase project
 
-- Node.js 24+
-- pnpm 10+
-- Supabase project (for auth & database)
-- Gemini API key (via Replit AI Integrations or Google AI Studio)
-
-### Environment Variables
-
-Create a `.env` file in the project root:
-
+**Env vars:**
 ```bash
-# Database
-DATABASE_URL=postgres://postgres:[password]@db.[project].supabase.co:5432/postgres
-
-# Supabase Auth
-VITE_SUPABASE_URL=https://[project].supabase.co
-VITE_SUPABASE_ANON_KEY=[your-anon-key]
-
-# Session
-SESSION_SECRET=[random-32-char-string]
-
-# Gemini (via Replit AI Integrations - no key needed)
-# Or set GOOGLE_API_KEY if using direct integration
+DATABASE_URL=postgres://...
+VITE_SUPABASE_URL=https://...
+VITE_SUPABASE_ANON_KEY=...
+SESSION_SECRET=...
 ```
 
-### Installation
-
+**Commands:**
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/visapath-ai.git
-cd visapath-ai
+pnpm install           # Install deps
+pnpm run typecheck     # Full typecheck
+pnpm run build         # Build all packages
 
-# Install dependencies
-pnpm install
-
-# Run full typecheck
-pnpm run typecheck
-
-# Build all packages
-pnpm run build
-```
-
-### Development
-
-```bash
-# Terminal 1: Run API server (port 8080)
+# Run API server
 pnpm --filter @workspace/api-server run dev
 
-# Terminal 2: Run frontend (port assigned by Replit or Vite)
+# Run frontend
 pnpm --filter @workspace/visapath run dev
 
-# Or regenerate API clients from OpenAPI spec
+# Regenerate API clients
 pnpm --filter @workspace/api-spec run codegen
 
-# Push DB schema changes (dev only)
+# Push DB schema
 pnpm --filter @workspace/db run push
 ```
-
-### Production Build
-
-```bash
-# Build all packages
-pnpm run build
-
-# API server bundle
-artifacts/api-server/dist/index.mjs
-
-# Frontend bundle
-artifacts/visapath/dist/
-```
-
----
-
-## Project Structure
-
-### Frontend Pages
-
-| Page | Route | File | Description |
-|------|-------|------|-------------|
-| Landing | `/` | `pages/LandingPage.tsx` | Hero, eligibility gauge, visa pathways, budget planner |
-| Assessment | `/assessment` | `pages/AssessmentPage.tsx` | 10-step wizard with AI questions |
-| Results | `/results` | `pages/ResultsPage.tsx` | Dual-engine scoring, visa cards, analysis |
-| Advisor | `/advisor` | `pages/AdvisorPage.tsx` | Streaming AI chat with document sidebar |
-| Roadmaps | `/roadmaps` | `pages/RoadmapsPage.tsx` | Timeline, checklist, financial breakdown |
-| History | `/history` | `pages/HistoryPage.tsx` | Past assessments with scores |
-| Not Found | `*` | `pages/not-found.tsx` | 404 page |
-
-### Frontend Components
-
-| Component | File | Description |
-|-----------|------|-------------|
-| NavBar | `components/NavBar.tsx` | Global nav with auth popover |
-| AnimatedBackground | `components/AnimatedBackground.tsx` | Gooey blob animation background |
-| CountrySelect | `components/CountrySelect.tsx` | Searchable dropdown with 200+ flags |
-| UI Primitives | `components/ui/*.tsx` | Button, card, dialog, toast, tabs, etc. |
-
-### Core Libraries
-
-| Library | File | Description |
-|---------|------|-------------|
-| Scoring Engine | `lib/scoring.ts` | Rule-based visa scoring with 25 visa configs |
-| Database Helpers | `lib/db.ts` | Supabase CRUD for assessments, recommendations, roadmaps, chats |
-| Supabase Client | `lib/supabase.ts` | Initialized Supabase client with env vars |
-| Auth Context | `contexts/AuthContext.tsx` | Magic link auth state management |
-
-### Backend Routes
-
-| Route | File | Description |
-|-------|------|-------------|
-| AI Routes | `routes/ai.ts` | All 6 AI endpoints + safeJsonParse helper |
-| Health | `routes/health.ts` | Health check endpoint |
-| Route Index | `routes/index.ts` | Route composition |
-
-### Data Files
-
-| File | Description |
-|------|-------------|
-| `data/visas.ts` | 25 visa definitions with requirements, processing times, costs |
-| `data/countries.ts` | 200+ countries with ISO codes and flags |
 
 ---
 
 ## Design Decisions
 
-### 1. 100% TypeScript
-Every file in the project is `.ts` or `.tsx`. No Python, Java, C, or plain HTML/CSS. This ensures:
-- Full type safety across frontend and backend
-- Shared types between client and server
-- No runtime type errors
-- Better IDE autocomplete and refactoring
-
-### 2. Dual Scoring Engine
-Why two engines?
-- **Rule-based** is instant, deterministic, and works offline
-- **AI Gemini** is realistic, contextual, and catches real-world barriers
-- Users can toggle to compare and build trust
-
-### 3. JSON Repair for AI Responses
-Gemini 2.5 Flash occasionally returns malformed JSON (truncated, stray tokens, trailing commas). The `safeJsonParse()` helper:
-- Extracts JSON from markdown code blocks
-- Finds matching braces/brackets by counting depth
-- Strips stray unquoted tokens
-- Removes trailing commas
-- Returns clean, parseable JSON
-
-### 4. Contract-First API
-OpenAPI spec drives code generation:
-- `api-spec/openapi.yaml` is the source of truth
-- `pnpm --filter @workspace/api-spec run codegen` generates:
-  - React Query hooks (`api-client-react`)
-  - Zod schemas (`api-zod`)
-- Frontend and backend stay in sync automatically
-
-### 5. Monorepo with pnpm Workspaces
-Shared libraries prevent code duplication:
-- `@workspace/db` — Drizzle schema used by both frontend and backend
-- `@workspace/api-zod` — Zod schemas shared across packages
-- `@workspace/integrations-gemini-ai` — Gemini client reusable across projects
-
-### 6. Magic Link Authentication
-Passwordless auth reduces friction:
-- No password to remember or reset
-- No "forgot password" flow needed
-- Secure (Supabase manages tokens)
-- Works with any email provider
-
-### 7. LocalStorage + Supabase Hybrid
-- **Unauthenticated users:** Assessment data stored in `localStorage`
-- **Authenticated users:** Data synced to Supabase PostgreSQL
-- **Assessment ID:** `localStorage` stores the Supabase UUID for resuming
+1. **100% TypeScript** — Every file is `.ts` or `.tsx`. No Python, Java, C, or plain HTML/CSS.
+2. **Dual Scoring** — Rule-based for speed, AI for realism. Toggle to compare.
+3. **JSON Repair** — Gemini occasionally returns malformed JSON. `safeJsonParse()` extracts and fixes it.
+4. **Contract-First API** — OpenAPI spec generates React Query hooks and Zod schemas.
+5. **Monorepo** — Shared libraries (DB, schemas, API clients) prevent duplication.
+6. **Magic Link Auth** — Passwordless. Less friction, more security.
 
 ---
 
-## Future Roadmap
+## Roadmap
 
-### Near Term (1-3 months)
-- [ ] **Document Upload** — Upload passports, degrees, IELTS results for AI review
-- [ ] **Visa Policy Updates** — Web scraping for real-time policy changes
-- [ ] **Multi-language Support** — i18n for Spanish, Mandarin, Hindi, Arabic
-
-### Medium Term (3-6 months)
-- [ ] **Mobile App** — Expo React Native app with offline assessment
-- [ ] **Premium Tier** — $9.99/month for human advisor matching
-- [ ] **Community Forum** — Success stories, Q&A, peer support
-- [ ] **PDF Export** — Download assessment report as PDF
-
-### Long Term (6-12 months)
-- [ ] **AI Document Review** — Gemini analyzes uploaded documents for completeness
-- [ ] **Sponsor Matching** — Connect users with employers willing to sponsor
-- [ ] **Lawyer Marketplace** — Vetted immigration lawyers by country
-- [ ] **Government API Integration** — Direct status checking where APIs exist
-
----
-
-## Screenshots
-
-| Page | Description |
-|------|-------------|
-| **Landing** | Animated hero with floating visa cards, eligibility gauge, budget planner |
-| **Assessment** | 10-step wizard with progress indicator, AI-generated personalized questions |
-| **Results** | Dual-engine toggle, animated score gauge, per-visa cards with expandable details |
-| **Advisor** | Streaming chat interface with suggestion chips and priority documents sidebar |
-| **Roadmaps** | Timeline view, interactive document checklist, AI-generated cost breakdown |
-| **History** | List of past assessments with top scores, time-ago display, one-click resume |
+- Document upload & AI document review
+- Real-time visa policy updates via web scraping
+- Multi-language support (i18n)
+- Mobile app (Expo)
+- Premium tier with human advisor matching
+- Community forum & success stories
 
 ---
 
@@ -841,35 +260,6 @@ Passwordless auth reduces friction:
 
 MIT License
 
-Copyright (c) 2025 VisaPath AI
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-
----
-
-## Credits
-
-- **AI Model:** Gemini 2.5 Flash via Google AI
-- **Database & Auth:** Supabase (PostgreSQL + Row Level Security)
-- **Icons:** Iconify (Lucide, Phosphor, Fluent Emoji)
-- **Fonts:** Space Grotesk (display headings), Inter (body text)
-- **Animations:** GSAP (chat, scroll, transitions)
-- **Build Tool:** esbuild (ultra-fast bundling)
-
 ---
 
 **Built with care for the 280+ million international migrants worldwide.**
-
-**Questions?** Open an issue or reach out via the AI Advisor chat in the app.
